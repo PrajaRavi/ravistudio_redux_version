@@ -70,7 +70,7 @@ return ()=>{
      <Route path='/signup' element={<SignUpPage/>}/>
      <Route path='/signin' element={<SignInPage/>}/>
      <Route path='/favourite' element={<Favourite/>}/>
-     <Route path='/showsong' element={<PlaylistSongs/>}/>
+     <Route path='/showsong/:playlist' element={<PlaylistSongs/>}/>
      <Route path='/lang' element={<LanguageSelectionPage/>}/>
      <Route path='/VerifyOTP' element={<OTPVerification/>}/>
 </Routes>

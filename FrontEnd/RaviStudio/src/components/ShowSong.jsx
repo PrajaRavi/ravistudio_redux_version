@@ -1,25 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Play, MoreVertical, Share2, Plus } from "lucide-react";
+import axios from "axios"
+import { useParams } from "react-router-dom";
+import PlaylistSkeleton from "./SkeltonLoading/ShowSong";
 
 export default function PlaylistSongsPage() {
-  const playlist = {
-    title: "Chill Vibes",
-    description: "Relaxing songs to boost your mood",
-    image: "https://picsum.photos/500/500",
-    totalSongs: 6,
-  };
+  const [songs,setsongs]=useState([])
+  let [loading,setloading]=useState(false)
+  let [playlistdata,setplaylistdata]=useState([])
+  const {playlist}=useParams()
 
-  const songs = [
-    { id: 1, title: "Night Changes", artist: "One Direction", image: "https://picsum.photos/200?1" },
-    { id: 2, title: "Perfect", artist: "Ed Sheeran", image: "https://picsum.photos/200?2" },
-    { id: 3, title: "Believer", artist: "Imagine Dragons", image: "https://picsum.photos/200?3" },
-    { id: 4, title: "Blinding Lights", artist: "The Weeknd", image: "https://picsum.photos/200?4" },
-    { id: 5, title: "Lovely", artist: "Billie Eilish", image: "https://picsum.photos/200?5" },
-    { id: 6, title: "Stay", artist: "Justin Bieber", image: "https://picsum.photos/200?6" },
-  ];
+  const FetchPlaylistById=async()=>{
+      let {data}=await axios.get(`http://localhost:4500/playlist/get-playlist-by-id/${playlist}`)
+      if(data.success){
+        setplaylistdata(data.msg)
+      }
 
-  const [liked, setLiked] = useState({});
+  }
+  const FetchAllSongs=async ()=>{
+    try {
+      setloading(true)
+      let {data}=await axios.get(`http://localhost:4500/songs/get-all-songs`)
+      if(data.success){
+        setsongs(data.msg)
+      }
+    } catch (error) {
+      alert("failed fetching data frontend")
+          
+    }finally{
+      setloading(false)
+    }
+  }
+  
+
+    const [liked, setLiked] = useState({});
   const [openMenu, setOpenMenu] = useState(null);
 
   const handleShare = (song) => {
@@ -34,18 +49,25 @@ export default function PlaylistSongsPage() {
     }
   };
 
+  useEffect(()=>{  
+    FetchAllSongs()
+    FetchPlaylistById()
+    
+  },[])
   return (
-    <div className="min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3 md:px-">
+
+    <>
+    {loading==false?<div className="min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3 md:px-">
       {/* Playlist Header */}
       <div className="w-full h-[90px]">
 
       </div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row gap-6 mb-10">
-        <img src={playlist.image} alt="playlist" className="w-48 h-48 rounded-2xl object-cover" />
+        <img src={`http://localhost:4500/${playlistdata.playlistimage}`} alt="playlist" className="w-48 h-48 rounded-2xl object-cover" />
         <div className="flex flex-col justify-center">
-          <h1 className="text-3xl font-bold">{playlist.title}</h1>
-          <p className="text-gray-400 mt-2 max-w-xl">{playlist.description}</p>
-          <span className="text-sm text-gray-500 mt-1">{playlist.totalSongs} Songs</span>
+          <h1 className="text-3xl font-bold">{playlistdata.name}</h1>
+          <p className="text-gray-400 mt-2 max-w-xl">{playlistdata.title}</p>
+          <span className="text-sm text-gray-500 mt-1">10 Songs</span>
         </div>
       </motion.div>
 
@@ -53,7 +75,7 @@ export default function PlaylistSongsPage() {
       <div className="space-y-3 w-full  ">
         {songs.map((song) => (
           <motion.div
-            key={song.id}
+            key={song._id}
             whileHover={{ scale: 1.01 }}
             className="relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3"
           >
@@ -67,17 +89,17 @@ export default function PlaylistSongsPage() {
             </div>
 
             {/* Actions */}
-            <button onClick={() => setLiked({ ...liked, [song.id]: !liked[song.id] })}>
-              <Heart className={liked[song.id] ? "fill-red-500 text-red-500" : "text-gray-400"} />
+            <button onClick={() => setLiked({ ...liked, [song._id]: !liked[song._id] })}>
+              <Heart className={liked[song._id] ? "fill-red-500 text-red-500" : "text-gray-400"} />
             </button>
             <button><Play /></button>
-            <button onClick={() => setOpenMenu(openMenu === song.id ? null : song.id)}>
+            <button onClick={() => setOpenMenu(openMenu === song._id ? null : song._id)}>
               <MoreVertical />
             </button>
 
             {/* Menu */}
             <AnimatePresence>
-              {openMenu === song.id && (
+              {openMenu === song._id && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -96,6 +118,8 @@ export default function PlaylistSongsPage() {
 
       </div>
       
-    </div>
+    </div>:<PlaylistSkeleton/>}
+    </>
+
   );
 }

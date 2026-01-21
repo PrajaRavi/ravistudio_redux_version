@@ -1,8 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState={
-  SingerData:[],
-  SingerDataLoading:null,
-  Singererror:null,
+  
 }
 const SongSlice=createSlice({
   initialState,

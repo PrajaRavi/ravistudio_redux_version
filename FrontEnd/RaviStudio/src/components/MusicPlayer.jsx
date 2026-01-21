@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
+import Hls from "hls.js";
 import {
   Play,
   Pause,
@@ -12,10 +13,77 @@ import {
 } from "lucide-react";
 
 export default function BottomMusicPlayer() {
+  const audioRef = useRef(null);
+  const hlsRef = useRef(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
-  const [loopMode, setLoopMode] = useState("all"); // all | one | off
-  const [progress, setProgress] = useState(35); // demo progress %
-  const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
+  const [loopMode, setLoopMode] = useState("all");
+  const [progress, setProgress] = useState(0);
+
+  const IsUserLogin = useSelector((state) => state.User.IsUserLogin);
+
+  // 🔗 Your HLS master playlist
+  const HLS_URL = "http://localhost:4500/hls-output/1769016309072-Martin_Bravi_Needed_You.mp3/index.m3u8";
+
+  /* =======================
+     INIT HLS
+  ======================= */
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+      });
+
+      hls.loadSource(HLS_URL);
+      hls.attachMedia(audio);
+
+      hlsRef.current = hls;
+    } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
+      // Safari (native HLS)
+      audio.src = HLS_URL;
+    }
+
+    return () => {
+      hlsRef.current?.destroy();
+    };
+  }, []);
+
+  /* =======================
+     PLAY / PAUSE
+  ======================= */
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    isPlaying ? audio.play() : audio.pause();
+  }, [isPlaying]);
+
+  /* =======================
+     PROGRESS HANDLING
+  ======================= */
+  const handleTimeUpdate = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const percent = (audio.currentTime / audio.duration) * 100;
+    setProgress(percent || 0);
+  };
+
+  const handleSeek = (e) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percent = clickX / rect.width;
+
+    audio.currentTime = percent * audio.duration;
+  };
 
   const toggleLoop = () => {
     setLoopMode((prev) =>
@@ -23,21 +91,31 @@ export default function BottomMusicPlayer() {
     );
   };
 
-  const handleSeek = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const percent = (clickX / rect.width) * 100;
-    setProgress(Math.max(0, Math.min(100, percent)));
-  };
+  /* =======================
+     LOOP MODE
+  ======================= */
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.loop = loopMode === "one";
+  }, [loopMode]);
 
   return (
     <motion.div
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className={IsUserLogin?"fixed bottom-0 left-0 z-40 w-full":"hidden"}
+      className={IsUserLogin ? "fixed bottom-0 left-0 z-40 w-full" : "hidden"}
     >
-      {/* Seekable Progress Bar */}
+      {/* 🎵 Hidden Audio */}
+      <audio
+        ref={audioRef}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={() => setIsPlaying(false)}
+      />
+
+      {/* Progress Bar */}
       <div
         onClick={handleSeek}
         className="h-1 w-full bg-white/10 cursor-pointer"
@@ -49,12 +127,9 @@ export default function BottomMusicPlayer() {
         />
       </div>
 
-      {/* Player Container */}
-      <div
-        className="flex items-center justify-between gap-4 px-4 md:px-6 py-3
-                   bg-white/5 backdrop-blur-xl border-t border-white/10"
-      >
-        {/* Left: GIF + Song Info */}
+      {/* Player */}
+      <div className="flex items-center justify-between gap-4 px-4 md:px-6 py-3 bg-white/5 backdrop-blur-xl border-t border-white/10">
+        {/* Left */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10">
             <img
@@ -72,41 +147,34 @@ export default function BottomMusicPlayer() {
           </div>
         </div>
 
-        {/* Center: Controls */}
+        {/* Controls */}
         <div className="flex items-center gap-3 md:gap-4">
-          <button className="text-gray-400 hover:text-white">
-            <Shuffle size={18} />
-          </button>
+          <Shuffle size={18} className="text-gray-400" />
 
-          <button className="text-gray-300 hover:text-white">
-            <SkipBack size={22} />
-          </button>
+          <SkipBack size={22} className="text-gray-300" />
 
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-10 h-10 flex items-center justify-center rounded-full
-                       bg-purple-600 hover:bg-purple-700"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600"
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
 
-          <button className="text-gray-300 hover:text-white">
-            <SkipForward size={22} />
-          </button>
+          <SkipForward size={22} className="text-gray-300" />
 
-          <button onClick={toggleLoop} className="text-gray-400 hover:text-white">
+          <button onClick={toggleLoop}>
             {loopMode === "one" ? (
               <Repeat1 size={18} className="text-purple-500" />
             ) : (
               <Repeat
                 size={18}
-                className={loopMode === "all" ? "text-purple-500" : ""}
+                className={loopMode === "all" ? "text-purple-500" : "text-gray-400"}
               />
             )}
           </button>
         </div>
 
-        {/* Right: Rotating Album Art */}
+        {/* Rotating Art */}
         <div className="hidden sm:block">
           <motion.div
             animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
@@ -119,7 +187,7 @@ export default function BottomMusicPlayer() {
           >
             <img
               src="https://images.unsplash.com/photo-1511379938547-c1f69419868d"
-              alt="current"
+              alt="album"
               className="w-full h-full object-cover"
             />
           </motion.div>

@@ -32,6 +32,7 @@ console.log(isAtEnd)
         }
 
 };
+
  const fetchSingers = async (page = 1, limit = 10) => {
   const { data } = await axios.get(
     `http://localhost:4500/playlist/get-all-playlist/?page=${page}&limit=${limit}`
@@ -107,7 +108,7 @@ useEffect(() => {
         </motion.div>
 
         <h3 className="mt-1 text-sm font-semibold text-gray-100 truncate">
-          <Link to={"/showsong"}>{singer.name}</Link>
+          <Link to={`/showsong/${singer._id}`}>{singer.name}</Link>
         </h3>
 
         <p className="text-xs text-gray-400 line-clamp-2">

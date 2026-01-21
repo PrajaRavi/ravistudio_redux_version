@@ -1,11 +1,11 @@
-import { SongModel } from "../Models/song.model";
+import { SongModel } from "../Models/song.model.js";
 
-export const PostSong=async (req,res,next)=>{
-  const {title,artist,album,genre,year,language,track,duration,coverImage}=req.body;
+export const GetAllSongs=async (req,res)=>{
   try {
-    let data=await SongModel.create({title,artist,album,genre,year,language,track,duration,coverImage})
-      data.save()
+    let data=await SongModel.find()
+    if(!data) return;
+    return res.send({success:true,msg:data})
   } catch (error) {
-    return res.send({success:false,msg:error})
+    return res.send({success:false,msg:"song fetch failed"})
   }
 }

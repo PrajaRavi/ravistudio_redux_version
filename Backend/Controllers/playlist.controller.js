@@ -1,4 +1,4 @@
-import {PlaylistModel} from "../Models/Playlist.model.js"
+import { PlaylistModel } from "../Models/Playlist.model.js";
 export const getAllPlaylist = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -24,6 +24,18 @@ export const getAllPlaylist = async (req, res) => {
     res.status(500).json({
       success: false,
       msg: "Failed to fetch singers",
+    });
+  }
+};
+export const GetPlaylistById = async (req, resp) => {
+  try {
+    let data = await PlaylistModel.findById(req.params.id);
+    if (!data) return;
+    return resp.send({ success: true, msg: data });
+  } catch (error) {
+    resp.status(500).json({
+      success: false,
+      msg: "Failed to fetch Playlist by id",
     });
   }
 };
