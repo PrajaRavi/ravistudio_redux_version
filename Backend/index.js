@@ -21,7 +21,7 @@ import { UserRouter } from "./Routes/user.route.js";
 import { PlaylistRouter } from "./Routes/playlist.route.js";
 import { SongRouter } from "./Routes/song.route.js";
 import cookieParser from "cookie-parser";
-import {SongModel} from "./Models/song.model.js"
+import { SongModel } from "./Models/song.model.js";
 
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
@@ -198,67 +198,67 @@ const Storage_for_song_upload = multer.diskStorage({
 });
 const upload_for_song_upload = multer({ storage: Storage_for_song_upload });
 
-const TranscodeAudio=async(req, res,next) => {
-    // Check if a file was uploaded
-    if (!req.file) {
-      return res.status(400).send("Video not sent!");
-    }
+const TranscodeAudio = async (req, res, next) => {
+  // Check if a file was uploaded
+  if (!req.file) {
+    return res.status(400).send("Video not sent!");
+  }
 
-    // Generate a unique ID for the video
-    const AudioId = req.file.filename;
-    const uploadedAudioPath = req.file.path;
+  // Generate a unique ID for the video
+  const AudioId = req.file.filename;
+  const uploadedAudioPath = req.file.path;
 
-    // Define output folder structure (NEW)
-    const outputFolderRootPath = `./hls-output/${AudioId}`;
-    const outputFolderSubDirectoryPath = {
-      Low: `${outputFolderRootPath}/Low`,
-      Mid: `${outputFolderRootPath}/Mid`,
-      High: `${outputFolderRootPath}/High`,
-    };
+  // Define output folder structure (NEW)
+  const outputFolderRootPath = `./hls-output/${AudioId}`;
+  const outputFolderSubDirectoryPath = {
+    Low: `${outputFolderRootPath}/Low`,
+    Mid: `${outputFolderRootPath}/Mid`,
+    High: `${outputFolderRootPath}/High`,
+  };
 
-    // Create directories if they don't exist, for storing output video (NEW)
-    if (!fs.existsSync(outputFolderRootPath)) {
-      // ./hls-output/video-id/360p/
-      fs.mkdirSync(outputFolderSubDirectoryPath["Low"], { recursive: true });
-      // ./hls-output/video-id/480p/
-      fs.mkdirSync(outputFolderSubDirectoryPath["Mid"], { recursive: true });
-      // ./hls-output/video-id/720p/
-      fs.mkdirSync(outputFolderSubDirectoryPath["High"], { recursive: true });
-      // ./hls-output/video-id/1080p/
-    }
+  // Create directories if they don't exist, for storing output video (NEW)
+  if (!fs.existsSync(outputFolderRootPath)) {
+    // ./hls-output/video-id/360p/
+    fs.mkdirSync(outputFolderSubDirectoryPath["Low"], { recursive: true });
+    // ./hls-output/video-id/480p/
+    fs.mkdirSync(outputFolderSubDirectoryPath["Mid"], { recursive: true });
+    // ./hls-output/video-id/720p/
+    fs.mkdirSync(outputFolderSubDirectoryPath["High"], { recursive: true });
+    // ./hls-output/video-id/1080p/
+  }
 
-    // Define FFmpeg commands for different resolutions (NEW)
-    const ffmpegCommands = [
-      // Low Quality (64kbps) - For slow connections / 3G
-      `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 64k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["Low"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["Low"]}/index.m3u8"`,
+  // Define FFmpeg commands for different resolutions (NEW)
+  const ffmpegCommands = [
+    // Low Quality (64kbps) - For slow connections / 3G
+    `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 64k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["Low"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["Low"]}/index.m3u8"`,
 
-      // Mid Quality (128kbps) - Standard mobile/web streaming
-      `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 128k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["Mid"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["Mid"]}/index.m3u8"`,
+    // Mid Quality (128kbps) - Standard mobile/web streaming
+    `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 128k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["Mid"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["Mid"]}/index.m3u8"`,
 
-      // High Quality (320kbps) - For high-end audio / WiFi
-      `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 320k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["High"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["High"]}/index.m3u8"`,
-    ];
-    // Function to execute a single FFmpeg command (NEW)
-    const executeCommand = (command) => {
-      return new Promise((resolve, reject) => {
-        // Execute ffmpeg command in shell
-        exec(command, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            reject(error);
-          } else {
-            resolve();
-          }
-        });
+    // High Quality (320kbps) - For high-end audio / WiFi
+    `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 320k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["High"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["High"]}/index.m3u8"`,
+  ];
+  // Function to execute a single FFmpeg command (NEW)
+  const executeCommand = (command) => {
+    return new Promise((resolve, reject) => {
+      // Execute ffmpeg command in shell
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          reject(error);
+        } else {
+          resolve();
+        }
       });
-    };
+    });
+  };
 
-    // Execute all FFmpeg commands concurrently (NEW)
-    Promise.all(ffmpegCommands.map((cmd) => executeCommand(cmd)))
-      .then(() => {
-        // Create master playlist
-        const masterPlaylistPath = `${outputFolderRootPath}/index.m3u8`; // ./hls-output/video-id/index.m3u8
-        const masterPlaylistContent = `
+  // Execute all FFmpeg commands concurrently (NEW)
+  Promise.all(ffmpegCommands.map((cmd) => executeCommand(cmd)))
+    .then(() => {
+      // Create master playlist
+      const masterPlaylistPath = `${outputFolderRootPath}/index.m3u8`; // ./hls-output/video-id/index.m3u8
+      const masterPlaylistContent = `
 #EXTM3U
 #EXT-X-VERSION:3
 
@@ -271,62 +271,170 @@ mid/index.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=320000,NAME="High"
 high/index.m3u8
 `.trim();
-        fs.writeFileSync(masterPlaylistPath, masterPlaylistContent); // write the above content in the index.m3u8 file
+      fs.writeFileSync(masterPlaylistPath, masterPlaylistContent); // write the above content in the index.m3u8 file
 
-        // Creating URLs for accessing the video streams
-        const videoUrls = {
-          master: `http://localhost:${port}/hls-output/${AudioId}/index.m3u8`,
-          Low: `http://localhost:${port}/hls-output/${AudioId}/Low/index.m3u8`,
-          Mid: `http://localhost:${port}/hls-output/${AudioId}/Mid/index.m3u8`,
-          High: `http://localhost:${port}/hls-output/${AudioId}/High/index.m3u8`,
-        };
-       
-        // just(uploadedAudioPath,videoUrls)
-        // Send success response with video URLs
-        req.uploadedAudioPath=uploadedAudioPath
-        req.audioURL=videoUrls
-        // res.status(200).json({ AudioId, videoUrls })
-         next();
-      })
-      .catch((error) => {
-        console.error(`HLS conversion error: ${error}`);
+      // Creating URLs for accessing the video streams
+      const videoUrls = {
+        master: `http://localhost:${port}/hls-output/${AudioId}/index.m3u8`,
+        Low: `http://localhost:${port}/hls-output/${AudioId}/Low/index.m3u8`,
+        Mid: `http://localhost:${port}/hls-output/${AudioId}/Mid/index.m3u8`,
+        High: `http://localhost:${port}/hls-output/${AudioId}/High/index.m3u8`,
+      };
 
-        // Clean up: Delete the uploaded video file
-        try {
-          fs.unlinkSync(uploadedAudioPath);
-        } catch (err) {
-          console.error(`Failed to delete original video file: ${err}`);
-        }
+      // just(uploadedAudioPath,videoUrls)
+      // Send success response with video URLs
+      req.uploadedAudioPath = uploadedAudioPath;
+      req.audioURL = videoUrls;
+      // res.status(200).json({ AudioId, videoUrls })
+      next();
+    })
+    .catch((error) => {
+      console.error(`HLS conversion error: ${error}`);
 
-        // Clean up: Delete the generated HLS files and folders
-        try {
-          fs.unlinkSync(outputFolderRootPath);
-        } catch (err) {
-          console.error(`Failed to delete generated HLS files: ${err}`);
-        }
-
-        // Send error response
-        return res.status(500).send("HLS conversion failed!");
-      });
-      
-  }
-const AfterTranscodingAudio=async(req,res)=>{
-   try {
-let mydata=extractAudioMetadata(String(req.uploadedAudioPath).substring(7,String(req.uploadedAudioPath).length),req.audioURL)
-console.log(mydata)
-console.log("step2")
-      if(mydata.success){
-        return res.send("Sab ho gaya hai bhai")
+      // Clean up: Delete the uploaded video file
+      try {
+        fs.unlinkSync(uploadedAudioPath);
+      } catch (err) {
+        console.error(`Failed to delete original video file: ${err}`);
       }
-    } catch (error) {
-      return res.send({ success: false, msg: "song db error" });
-    }
-}
 
-// Define route for video upload
+      // Clean up: Delete the generated HLS files and folders
+      try {
+        fs.unlinkSync(outputFolderRootPath);
+      } catch (err) {
+        console.error(`Failed to delete generated HLS files: ${err}`);
+      }
+
+      // Send error response
+      return res.status(500).send("HLS conversion failed!");
+    });
+};
+
+// Whole pipe line to transcode the audio
 app.post(
   "/api/upload",
-  upload_for_song_upload.single("video"),TranscodeAudio,AfterTranscodingAudio);
+  upload_for_song_upload.single("video"),
+  TranscodeAudio,
+  async (req, res) => {
+    let filePath =
+      "./Upload/" +
+      String(req.uploadedAudioPath).substring(
+        7,
+        String(req.uploadedAudioPath).length,
+      );
+    let AudioURLObj = req.audioURL;
+    console.log(filePath);
+    try {
+      /* ------------------ MUSIC METADATA ------------------ */
+      const metadata = await parseFile(filePath, {
+        native: true,
+        duration: true,
+      });
+
+      const { common, format } = metadata;
+
+      /* ------------------ COVER ART ------------------ */
+      let coverImage = null;
+
+      if (common.picture && common.picture.length > 0) {
+        const pic = common.picture[0];
+
+        coverImage = {
+          format: pic.format,
+          size: pic.data.length,
+          buffer: pic.data,
+        };
+
+        if (coverOutputDir) {
+          if (!fs.existsSync(coverOutputDir)) {
+            fs.mkdirSync(coverOutputDir, { recursive: true });
+          }
+
+          const coverPath = path.join(
+            coverOutputDir,
+            `cover-${Date.now()}.${pic.format.split("/")[1]}`,
+          );
+
+          fs.writeFileSync(coverPath, pic.data);
+          coverImage.path = coverPath;
+        }
+      }
+
+      /* ------------------ FFPROBE (TECHNICAL DATA) ------------------ */
+      const ffprobeData = await new Promise((resolve, reject) => {
+        ffmpeg.ffprobe(filePath, (err, data) => {
+          if (err) reject(err);
+          else resolve(data);
+        });
+      });
+
+      const audioStream = ffprobeData.streams.find(
+        (s) => s.codec_type === "audio",
+      );
+
+      /* ------------------ FINAL STRUCTURED RESPONSE ------------------ */
+      const myobj = {
+        /* 🎵 Tags */
+        title: common.title || "Unknow title",
+        artist: common.artist || "Unknown artist",
+        album: common.album || "Unknown album",
+        genre: common.genre || [],
+        year: common.year || null,
+        language: common.language || "en",
+        track: common.track?.no || "nothing",
+
+        /* ⏱ Duration & Quality */
+        duration: format.duration, // seconds
+        bitrate: format.bitrate,
+        sampleRate: format.sampleRate,
+        numberOfChannels: format.numberOfChannels,
+
+        /* 🎚 Codec / Stream Info */
+        codec: audioStream?.codec_name,
+        codecLong: audioStream?.codec_long_name,
+        channels: audioStream?.channels,
+        channelLayout: audioStream?.channel_layout,
+
+        /* 🖼 Cover Art */
+        coverImage,
+
+        /* 📦 Raw (optional use) */
+        raw: {
+          musicMetadata: metadata,
+          ffprobe: ffprobeData,
+        },
+      };
+      console.log(AudioURLObj?.Low);
+      console.log(AudioURLObj?.Mid);
+      let data = await SongModel.create({
+        title: String(myobj.title),
+        artist: String(myobj.artist),
+        album: String(myobj.album),
+        genre: String(myobj.genre),
+        year: myobj.year,
+        language: myobj.language,
+        track: myobj.track,
+        duration: myobj.duration,
+        coverImage: myobj.coverImage,
+        audioURL: {
+          low: String(AudioURLObj?.Low),
+          medium: String(AudioURLObj?.Mid),
+          high: String(AudioURLObj?.High),
+          master: String(AudioURLObj?.master),
+        },
+      });
+
+      console.log(await data.save());
+
+      return res
+        .status(200)
+        .send({ success: true, msg: "sub thik hai bhai!!!!!" });
+    } catch (error) {
+      console.error("Audio metadata extraction failed:", error);
+      throw error;
+    }
+  },
+);
 
 /**
  * Extract full metadata + cover art + duration from an audio file
@@ -335,8 +443,8 @@ app.post(
  */
 
 async function extractAudioMetadata(filePath, AudioURLObj) {
-  filePath="./Upload/"+String(filePath)
-  console.log(filePath)
+  filePath = "./Upload/" + String(filePath);
+  console.log(filePath);
   try {
     /* ------------------ MUSIC METADATA ------------------ */
     const metadata = await parseFile(filePath, {
@@ -417,8 +525,8 @@ async function extractAudioMetadata(filePath, AudioURLObj) {
         ffprobe: ffprobeData,
       },
     };
-    console.log(AudioURLObj?.Low)
-    console.log(AudioURLObj?.Mid)
+    console.log(AudioURLObj?.Low);
+    console.log(AudioURLObj?.Mid);
     let data = await SongModel.create({
       title: String(myobj.title),
       artist: String(myobj.artist),
@@ -434,13 +542,12 @@ async function extractAudioMetadata(filePath, AudioURLObj) {
         medium: String(AudioURLObj?.Mid),
         high: String(AudioURLObj?.High),
         master: String(AudioURLObj?.master),
-      }
+      },
     });
 
     console.log(await data.save());
-    console.log("step1")
-    return {success:true,msg:"sub thik hai bhai!!!!!"}
-    
+    console.log("step1");
+    return { success: true, msg: "sub thik hai bhai!!!!!" };
   } catch (error) {
     console.error("Audio metadata extraction failed:", error);
     throw error;
