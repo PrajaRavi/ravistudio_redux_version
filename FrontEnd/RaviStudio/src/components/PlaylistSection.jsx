@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SingerHorizontalSkeleton from "./SkeltonLoading/SingerSection";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 
 export default function PlaylistSection({heading}) {
@@ -61,7 +62,7 @@ useEffect(() => {
       setTotalPages(data.totalPages);
       
     } catch (error) {
-      alert("Failed to load singers");
+      toast.warn("Failed to load singers");
     } finally {
       setLoading(false);
     }

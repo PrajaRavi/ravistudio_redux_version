@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Music, Type, ImagePlus, FileText, Upload } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function AddPlaylist() {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ export default function AddPlaylist() {
       setPreview(null);
     } catch (err) {
       console.error(err);
-      alert("Failed to create playlist ❌");
+      toast.warn("Failed to create playlist ❌");
     }
   };
 

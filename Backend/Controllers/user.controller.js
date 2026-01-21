@@ -197,6 +197,7 @@ export const login = async (req, res, next) => {
 };
 
 export const refreshAccessToken = async (req, res) => {
+  console.log(req.cookies)
   const refreshToken = req.cookies.refreshToken;
   console.log(req.cookies);
   if (!refreshToken) {
