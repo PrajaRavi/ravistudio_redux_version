@@ -11,7 +11,7 @@ const SongSchema = new Schema(
 
     duration: { type: Number, required: true }, // seconds
 
-    audio: {
+    audioURL: {
       low: {
         type: String,
         required: true,
@@ -24,6 +24,11 @@ const SongSchema = new Schema(
         type: String,
         required: true,
       },
+      master:{
+      type: String,
+        required: true,
+        
+      }
     },
 
     coverImage: { type: String, default: "" },
@@ -36,7 +41,7 @@ const SongSchema = new Schema(
 
     likedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // 🔍 Full-text search
