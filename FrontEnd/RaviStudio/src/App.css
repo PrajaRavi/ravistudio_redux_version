@@ -1,4 +1,4 @@
-@import "tailawindcss";
+@import "tailwindcss";
 /* global.css */
 
 html {
@@ -10,4 +10,8 @@ html {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.anim1{
+transition: all  4s ease-in-out;
 }

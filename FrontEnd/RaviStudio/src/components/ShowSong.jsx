@@ -4,12 +4,20 @@ import { Heart, Play, MoreVertical, Share2, Plus } from "lucide-react";
 import axios from "axios"
 import { useParams } from "react-router-dom";
 import PlaylistSkeleton from "./SkeltonLoading/ShowSong";
-
+import {useDispatch,useSelector} from "react-redux"
+import {toast} from "react-toastify"
+import { SaveSong, SetisPlaying } from "../Redux/Slices/Song.slice";
 export default function PlaylistSongsPage() {
   const [songs,setsongs]=useState([])
   let [loading,setloading]=useState(false)
   let [playlistdata,setplaylistdata]=useState([])
   const {playlist}=useParams()
+  const dispatch=useDispatch()
+  const songstate=useSelector(state=>state.Song)
+  const artist=useSelector(state=>state.Song.artist)
+  const isPlaying=useSelector(state=>state.Song.isPlaying)
+const SelectedSongId=useSelector((state)=>state.Song.songid)
+
 
   const FetchPlaylistById=async()=>{
       let {data}=await axios.get(`http://localhost:4500/playlist/get-playlist-by-id/${playlist}`)
@@ -49,11 +57,28 @@ export default function PlaylistSongsPage() {
     }
   };
 
+  const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,songid)=>{
+    // alert(`${songname} and ${artist} and ${cover} and ${idx} and ${totalsong} and ${MasterFileUrl}`)
+  // if(!songname||!artist||!cover||!idx||!totalsong||!MasterFileUrl) return toast.warn("something went wrong during song play")
+    // else{
+  
+  dispatch(SaveSong({songname,artist,cover,idx,totalsong,MasterFileUrl,songid}))
+  dispatch(SetisPlaying(true))
+  // }
+
+  }
   useEffect(()=>{  
     FetchAllSongs()
     FetchPlaylistById()
     
   },[])
+
+  useEffect(()=>{  
+    console.log(songstate)
+    console.log(artist)
+    console.log("hello")
+    
+  },[songstate])
   return (
 
     <>
@@ -73,14 +98,14 @@ export default function PlaylistSongsPage() {
 
       {/* Songs List */}
       <div className="space-y-3 w-full  ">
-        {songs.map((song) => (
+        {songs.map((song,index) => (
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className="relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3"
+            className={SelectedSongId!=song._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}
-            <img src={song.image} className="w-14 h-14 rounded-lg object-cover" />
+            <img src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
 
             {/* Title */}
             <div className="flex-1">
@@ -92,7 +117,7 @@ export default function PlaylistSongsPage() {
             <button onClick={() => setLiked({ ...liked, [song._id]: !liked[song._id] })}>
               <Heart className={liked[song._id] ? "fill-red-500 text-red-500" : "text-gray-400"} />
             </button>
-            <button><Play /></button>
+            <button onClick={()=>HandleSongPlay(song.title,song.artist,song.coverImage,index,songs.length,song.audioURL.master,song._id)} className="cursor-pointer"><Play /></button>
             <button onClick={() => setOpenMenu(openMenu === song._id ? null : song._id)}>
               <MoreVertical />
             </button>

@@ -46,6 +46,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static("./Uploads"));
 app.use(express.static("./Images/PlaylistImg"));
 app.use(express.static("./Images/Profile"));
+app.use(express.static("./Images/SongImages"));
 app.use(express.static("./Images/Singerimg"));
 app.use(express.static("./Images/UserPlaylistImg"));
 

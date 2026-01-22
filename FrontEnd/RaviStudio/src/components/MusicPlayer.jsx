@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
+import PlayingGif from "../assets/playing.gif"
+import { useSelector ,useDispatch} from "react-redux";
+import "../App.css"
 import Hls from "hls.js";
 import {
   Play,
@@ -11,20 +13,36 @@ import {
   Repeat1,
   Shuffle,
 } from "lucide-react";
+import { SetisPlaying } from "../Redux/Slices/Song.slice";
 
 export default function BottomMusicPlayer() {
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
-
-  const [isPlaying, setIsPlaying] = useState(false);
+  const SongState=useSelector((state)=>state.Song)
+  // const [isPlaying, setIsPlaying] = useState(false);
   const [loopMode, setLoopMode] = useState("all");
   const [progress, setProgress] = useState(0);
+  let [artist,setartist]=useState("")
+  let [songname,setsongname]=useState("")
+  let [RightImgUrl,setRightImgUrl]=useState("")
+  const dispatch=useDispatch()
 
   const IsUserLogin = useSelector((state) => state.User.IsUserLogin);
-
+  const isPlaying = useSelector((state) => state.Song.isPlaying);
+  const artistState = useSelector((state) => state.Song.artist);
+  
   // 🔗 Your HLS master playlist
-  const HLS_URL = "http://localhost:4500/hls-output/1769016309072-Martin_Bravi_Needed_You.mp3/index.m3u8";
+  let [HLS_URL,setHLS_URL]=useState("http://localhost:4500/hls-output/1769016309072-Martin_Bravi_Needed_You.mp3/index.m3u8")
 
+
+  useEffect(()=>{  
+
+setHLS_URL(SongState.MasterFileUrl)
+setartist(SongState.artist)
+setsongname(SongState.songname)
+setRightImgUrl(SongState.cover)
+
+  },[SongState])
   /* =======================
      INIT HLS
   ======================= */
@@ -38,20 +56,21 @@ export default function BottomMusicPlayer() {
         enableWorker: true,
         lowLatencyMode: true,
       });
-
-      hls.loadSource(HLS_URL);
+      
+      
+      hls.loadSource(SongState?.MasterFileUrl);
       hls.attachMedia(audio);
 
       hlsRef.current = hls;
     } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
       // Safari (native HLS)
-      audio.src = HLS_URL;
+      audio.src = SongState?.MasterFileUrl;
     }
 
     return () => {
       hlsRef.current?.destroy();
     };
-  }, []);
+  }, [artistState]);
 
   /* =======================
      PLAY / PAUSE
@@ -61,7 +80,7 @@ export default function BottomMusicPlayer() {
     if (!audio) return;
 
     isPlaying ? audio.play() : audio.pause();
-  }, [isPlaying]);
+  }, [SongState]);
 
   /* =======================
      PROGRESS HANDLING
@@ -112,7 +131,7 @@ export default function BottomMusicPlayer() {
       <audio
         ref={audioRef}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={() => dispatch(SetisPlaying(false))}
       />
 
       {/* Progress Bar */}
@@ -131,19 +150,19 @@ export default function BottomMusicPlayer() {
       <div className="flex items-center justify-between gap-4 px-4 md:px-6 py-3 bg-white/5 backdrop-blur-xl border-t border-white/10">
         {/* Left */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10">
+          <div className="w-30 h-12 rounded-lg overflow-hidden bg-white/10">
             <img
-              src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif"
+              src={PlayingGif}
               alt="playing"
-              className="w-full h-full object-cover"
+              className={isPlaying?"w-full h-full object-cover anim1":"w-full anim1 h-full object-cover hidden"}
             />
           </div>
 
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-100 truncate">
-              Song Name Goes Here
+              {songname}
             </p>
-            <p className="text-xs text-gray-400 truncate">Singer Name</p>
+            <p className="text-xs text-gray-400 truncate">{artist}</p>
           </div>
         </div>
 
@@ -154,7 +173,7 @@ export default function BottomMusicPlayer() {
           <SkipBack size={22} className="text-gray-300" />
 
           <button
-            onClick={() => setIsPlaying(!isPlaying)}
+            onClick={() => dispatch(SetisPlaying(!isPlaying))}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600"
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
@@ -186,7 +205,7 @@ export default function BottomMusicPlayer() {
             className="w-12 h-12 rounded-full overflow-hidden border border-white/10"
           >
             <img
-              src="https://images.unsplash.com/photo-1511379938547-c1f69419868d"
+              src={`http://localhost:4500/${RightImgUrl}`}
               alt="album"
               className="w-full h-full object-cover"
             />
