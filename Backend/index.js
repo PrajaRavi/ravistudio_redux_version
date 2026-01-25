@@ -22,6 +22,7 @@ import { PlaylistRouter } from "./Routes/playlist.route.js";
 import { SongRouter } from "./Routes/song.route.js";
 import cookieParser from "cookie-parser";
 import { SongModel } from "./Models/song.model.js";
+import { UserPlaylistModel } from "./Models/User.playlist.model.js";
 
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
@@ -60,14 +61,26 @@ app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));
 const Storage = multer.diskStorage({
   // DESTINATION MEANS ALL ABOUT THAT WHERE WE HAVE TO SAVE OUR FILES
   destination: function (req, file, cb) {
-    cb(null, `./Upload`);
+    cb(null, `./Images/Profile`);
+  },
+  //HERE FILENAME MEANS IT IS ALL ABOUT WHAT WILL BE NAME OF OUR FILE
+  filename: function (req, file, cb) {
+    cb(null, `UserProfile.png`); //file.originalname.split('.').pop() it will basically remove all the sentance before . means at 0th position
+  },
+});
+
+const upload = multer({ storage: Storage });
+const Storage_for_UserPlaylistImg = multer.diskStorage({
+  // DESTINATION MEANS ALL ABOUT THAT WHERE WE HAVE TO SAVE OUR FILES
+  destination: function (req, file, cb) {
+    cb(null, `./Images/UserPlaylistImg`);
   },
   //HERE FILENAME MEANS IT IS ALL ABOUT WHAT WILL BE NAME OF OUR FILE
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`); //file.originalname.split('.').pop() it will basically remove all the sentance before . means at 0th position
   },
 });
-const upload = multer({ storage: Storage });
+const upload_for_UserPlaylistImg = multer({ storage: Storage_for_UserPlaylistImg });
 
 // Define route for video upload
 
@@ -104,6 +117,108 @@ const getAllSingers = async (req, res) => {
 //  GET /singers?page=1&limit=10
 app.get("/singers", getAllSingers);
 
+ const createUserPlaylist = async (req, res) => {
+  try {
+    const userId = req.user.id; // from protect middleware
+    const { name,title,description } = req.body;
+    // 1️⃣ Validation
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        msg: "Playlist name is required",
+      });
+    }
+    if(!req.file){
+      return res.status(400).json({
+        success: false,
+        msg: "Playlist image is required",
+      });
+    }
+
+    // 2️⃣ Prevent duplicate playlist name for same user
+    const existingPlaylist = await UserPlaylistModel.findOne({
+      name,
+      userId,
+    });
+
+    if (existingPlaylist) {
+      return res.status(409).json({
+        success: false,
+        msg: "You already have a playlist with this name",
+      });
+    }
+
+    // 3️⃣ Create playlist
+    const playlist = await UserPlaylistModel.create({
+      name,
+      coverImage:req.file.filename||"Unknown",
+      title,
+      userId,
+      description,
+      owner:userId,
+      isPublic: false,
+      songs: [],
+    });
+
+    // 4️⃣ Response
+    return res.status(201).json({
+      success: true,
+      msg: "Playlist created successfully",
+      playlist,
+    });
+  } catch (error) {
+    console.log(error)
+    if(error.code==11000){
+    return res.status(500).json({
+      success: false,
+      msg: "This Playlist already exist",
+    });  
+    }
+    else{
+
+      return res.status(500).json({
+        success: false,
+        msg: "Internal server error",
+      });
+    }
+  }
+};
+
+app.post("/CreateUserPlaylist/",upload_for_UserPlaylistImg.single("image"),protect,createUserPlaylist)
+
+const getAllUserPlaylist = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    // console.log(userId)
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalSingers = await UserPlaylistModel.countDocuments();
+
+    const singers = await UserPlaylistModel.find({ owner: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      total: totalSingers,
+      page,
+      totalPages: Math.ceil(totalSingers / limit),
+      singers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: "Failed to fetch singers",
+    });
+  }
+};
+
+app.get("/get-all-user-playlist",protect,getAllUserPlaylist)
 app.post("/update-user-language", protect, async (req, res) => {
   try {
     const { language } = req.body;
@@ -183,7 +298,8 @@ const updateProfileImage = async (req, res) => {
     });
   }
 };
-app.post("/update-profile-image", protect, updateProfileImage);
+
+app.post("/update-profile-image",upload.single("Profile"), protect, updateProfileImage);
 
 // Serve HLS output files statically (NEW)
 app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));

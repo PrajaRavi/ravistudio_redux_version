@@ -17,18 +17,11 @@ export default function PlaylistSection({heading}) {
   const el = scrollRef.current;
   if (!el) return;
 
-  const isAtEnd =
-    el.scrollLeft + el.clientWidth >= el.scrollWidth - 50;
+   const isAtEnd =
+    el.scrollLeft+el.clientWidth+1>=el.scrollWidth
 console.log(isAtEnd)
   if (isAtEnd) {
-    if(page<totalPages){
-      setPage((prev) => {
-            if (prev < totalPages) {
-              return prev + 1;
-            }
-            return prev;
-          });
-        }
+    setPage((prev)=>prev+1)
         }
 
 };
@@ -37,40 +30,23 @@ console.log(isAtEnd)
   const { data } = await axios.get(
     `http://localhost:4500/playlist/get-all-playlist/?page=${page}&limit=${limit}`
   );
-  console.log(data.singers)
-  return data;
-};
+  setTotalPages(data.totalPages);
 
-useEffect(()=>{
-  const el = scrollRef.current;
-  if (!el) return;
-
-  el.addEventListener("scroll", handleScroll);
-
-  return () => {
-    el.removeEventListener("scroll", handleScroll);
-  };
-},[scrollRef.current?.scrollLeft])
-
-useEffect(() => {
-  console.log(singers)
-  console.log("singer")
-  const loadSingers = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchSingers(page, 8);
-      setSingers((prev) => [...prev, ...data.singers]);
-      setTotalPages(data.totalPages);
-      
-    } catch (error) {
-      toast.warn("Failed to load singers");
-    } finally {
-      setLoading(false);
+  if(page>1){
+      // console.log([...ApiData,...data.singers])
+      setSingers((prev)=>[...prev,...data.singers])
+    }
+    else{
+      console.log(data.singers)
+      setSingers(data.singers)
     }
   };
 
-  loadSingers();
-}, [page]);
+  useEffect(()=>{  
+  fetchSingers(page)
+  },[page])
+  
+
 
   return (
     <>
@@ -81,10 +57,11 @@ useEffect(() => {
 
   <div
     ref={scrollRef}
+    onScroll={handleScroll}
     className="flex gap-4 sm:gap-5 overflow-x-auto
                scroll-smooth snap-x snap-mandatory
                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-              "
+               "
               >
     {singers.map((singer, i) => (
       <div

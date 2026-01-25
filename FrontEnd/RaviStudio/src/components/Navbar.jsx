@@ -71,7 +71,7 @@ export default function MusicNavbar() {
           <li className="hover:text-gray-100 cursor-pointer"><Link to={'/contact'}>Contact</Link></li>
           {IsAdmin && IsUserLogin ?<li className="hover:text-gray-100 cursor-pointer"><Link to={'/admin'}>Admin</Link></li>:null}
           {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/addplaylist"}>AddPlaylist</Link></li>:null}
-          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link>Favourite</Link></li>:null}
+          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/favourite"}>Favourite</Link></li>:null}
           <li className="hover:text-gray-100 cursor-pointer"><Link to={"/lang"}>Language</Link></li>
         </ul>
 
@@ -118,11 +118,28 @@ export default function MusicNavbar() {
             className="mt-3 rounded-2xl bg-transparent backdrop-blur-xl border border-black/10 shadow-xl md:hidden"
           >
             <ul className="flex flex-col divide-y divide-black/10 text-black">
-              {[
+              {IsUserLogin==false?[
+                {name:"Home",path:"/"},
+                // {name:"AddPlaylist",path:"addplaylist"},
+                // {name:"Favroute",path:"/favourite"},
+                {name:"Language",path:"/lang"},
+                {name:"signup",path:"/signup"},
+                {name:"signin",path:"/signin"},
+              ].map((item) => (
+               <Link to={item.path}> <li
+                  key={item.name}
+                  className="px-6 py-4 hover:bg-white/5 hover:text-gray-100 cursor-pointer"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.name}
+                </li></Link>
+              )):[
                 {name:"Home",path:"/"},
                 {name:"AddPlaylist",path:"addplaylist"},
-                {name:"Favroute",path:"/favourite"},
+                {name:"Favourite",path:"/favourite"},
                 {name:"Language",path:"/lang"},
+                // {name:"signup",path:"/signup"},
+                // {name:"signin",path:"/signin"},
               ].map((item) => (
                <Link to={item.path}> <li
                   key={item.name}

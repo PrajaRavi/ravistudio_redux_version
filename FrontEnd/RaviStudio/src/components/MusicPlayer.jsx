@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, number } from "framer-motion";
 import PlayingGif from "../assets/playing.gif"
 import { useSelector ,useDispatch} from "react-redux";
 import "../App.css"
+let firstrender=false;
 import Hls from "hls.js";
 import {
   Play,
@@ -13,36 +14,52 @@ import {
   Repeat1,
   Shuffle,
 } from "lucide-react";
-import { SetisPlaying } from "../Redux/Slices/Song.slice";
+import { SetCurrSongIdx, SetisPlaying } from "../Redux/Slices/Song.slice";
 
 export default function BottomMusicPlayer() {
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
-  const SongState=useSelector((state)=>state.Song)
   // const [isPlaying, setIsPlaying] = useState(false);
   const [loopMode, setLoopMode] = useState("all");
   const [progress, setProgress] = useState(0);
-  let [artist,setartist]=useState("")
-  let [songname,setsongname]=useState("")
-  let [RightImgUrl,setRightImgUrl]=useState("")
   const dispatch=useDispatch()
 
   const IsUserLogin = useSelector((state) => state.User.IsUserLogin);
   const isPlaying = useSelector((state) => state.Song.isPlaying);
-  const artistState = useSelector((state) => state.Song.artist);
+  const SongData = useSelector((state) => state.Song.SongArray);
+  const currsongindex = useSelector((state) => state.Song.currsongidx);
+  let [suffle,setsuffle]=useState(false)
   
-  // 🔗 Your HLS master playlist
-  let [HLS_URL,setHLS_URL]=useState("http://localhost:4500/hls-output/1769016309072-Martin_Bravi_Needed_You.mp3/index.m3u8")
 
+  
+useEffect(() => {
 
-  useEffect(()=>{  
+  const audio = audioRef.current;
+  if (!audio) return;
+  
 
-setHLS_URL(SongState.MasterFileUrl)
-setartist(SongState.artist)
-setsongname(SongState.songname)
-setRightImgUrl(SongState.cover)
+  const handleEnded = () => {
+   if(suffle==false){
 
-  },[SongState])
+     if (currsongindex < SongData.length - 1) {
+       dispatch(SetCurrSongIdx(parseInt(currsongindex)+1))
+       dispatch(SetisPlaying(true))
+      }
+    }
+    else{
+     const random = Math.floor(Math.random() * SongData.length);
+      dispatch(SetCurrSongIdx(parseInt(random)))
+      dispatch(SetisPlaying(true))
+ 
+    } 
+  };
+
+  audio.addEventListener("ended", handleEnded);
+  return () => {audio.removeEventListener("ended", handleEnded) 
+    firstrender=true;
+  };
+}, [currsongindex]);
+
   /* =======================
      INIT HLS
   ======================= */
@@ -56,21 +73,22 @@ setRightImgUrl(SongState.cover)
         enableWorker: true,
         lowLatencyMode: true,
       });
-      
-      
-      hls.loadSource(SongState?.MasterFileUrl);
+      if(currsongindex){
+        // alert('chala')
+        hls.loadSource(SongData[currsongindex]?.audioURL?.master);
+      }
       hls.attachMedia(audio);
 
       hlsRef.current = hls;
     } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
       // Safari (native HLS)
-      audio.src = SongState?.MasterFileUrl;
+      audio.src = SongData[currsongindex]?.audioURL?.master;
     }
 
     return () => {
       hlsRef.current?.destroy();
     };
-  }, [artistState]);
+  }, [currsongindex]);
 
   /* =======================
      PLAY / PAUSE
@@ -80,7 +98,7 @@ setRightImgUrl(SongState.cover)
     if (!audio) return;
 
     isPlaying ? audio.play() : audio.pause();
-  }, [SongState]);
+  }, [currsongindex,isPlaying]);
 
   /* =======================
      PROGRESS HANDLING
@@ -120,6 +138,43 @@ setRightImgUrl(SongState.cover)
     audio.loop = loopMode === "one";
   }, [loopMode]);
 
+  const HandleNextSong=async()=>{
+    if (currsongindex < SongData.length - 1) {
+      dispatch(SetCurrSongIdx(parseInt(currsongindex)+1))
+      dispatch(SetisPlaying(true))
+    }
+    else{
+      dispatch(SetCurrSongIdx(0))
+      dispatch(SetisPlaying(true))
+      
+    }
+    
+  }
+  const HandlePrevSong=async()=>{
+    if (currsongindex > 0) {
+      dispatch(SetCurrSongIdx(parseInt(currsongindex)-1))
+      dispatch(SetisPlaying(true))
+    }
+    else{
+      dispatch(SetCurrSongIdx(0))
+      dispatch(SetisPlaying(true))
+      
+    }
+  }
+  const HandleSuffleSong=()=>{
+    if(suffle){
+
+      setsuffle(false)
+    }
+    else {
+      const random = Math.floor(Math.random() * SongData.length);
+      dispatch(SetCurrSongIdx(parseInt(random)))
+      dispatch(SetisPlaying(true))
+
+      setsuffle(true)
+
+    }
+  }
   return (
     <motion.div
       initial={{ y: 80, opacity: 0 }}
@@ -137,7 +192,7 @@ setRightImgUrl(SongState.cover)
       {/* Progress Bar */}
       <div
         onClick={handleSeek}
-        className="h-1 w-full bg-white/10 cursor-pointer"
+        className="h-1 w-full bg-black/50 cursor-pointer"
       >
         <motion.div
           className="h-full bg-purple-600"
@@ -160,17 +215,23 @@ setRightImgUrl(SongState.cover)
 
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-100 truncate">
-              {songname}
+              {SongData[parseInt(currsongindex)]?.title}
             </p>
-            <p className="text-xs text-gray-400 truncate">{artist}</p>
+            <p className="text-xs text-purple-700 truncate">{SongData[parseInt(currsongindex)]?.artist}</p>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3 md:gap-4">
-          <Shuffle size={18} className="text-gray-400" />
+        <div className="flex items-center relative md:right-20 gap-3 md:gap-4">
+          <button onClick={()=>HandleSuffleSong()}>
+
+          <Shuffle size={18} className={suffle==false?"text-gray-400 hover:text-purple-700":"text-purple-700 hover:text-purple-400"} />
+          </button>
+          <button onClick={()=>HandlePrevSong()}>
+
 
           <SkipBack size={22} className="text-gray-300" />
+          </button>
 
           <button
             onClick={() => dispatch(SetisPlaying(!isPlaying))}
@@ -178,8 +239,10 @@ setRightImgUrl(SongState.cover)
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
+          <button onClick={()=>HandleNextSong()}>
 
-          <SkipForward size={22} className="text-gray-300" />
+          <SkipForward  size={22} className="text-gray-300" />
+          </button>
 
           <button onClick={toggleLoop}>
             {loopMode === "one" ? (
@@ -205,7 +268,7 @@ setRightImgUrl(SongState.cover)
             className="w-12 h-12 rounded-full overflow-hidden border border-white/10"
           >
             <img
-              src={`http://localhost:4500/${RightImgUrl}`}
+              src={`http://localhost:4500/${SongData[parseInt(currsongindex)]?.coverImage}`}
               alt="album"
               className="w-full h-full object-cover"
             />

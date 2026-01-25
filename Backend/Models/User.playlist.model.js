@@ -1,31 +1,61 @@
-const PlaylistSchema = new Schema(
+import mongoose from "mongoose";
+
+const PlaylistSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    image: { type: String, default: "" },
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+    },
 
-    userId: {
-      type: Schema.Types.ObjectId,
+    coverImage: {
+      type: String,
+      default: "",
+    },
+
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
 
-    songs: [{ type: Schema.Types.ObjectId, ref: "Song" }],
+    songs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Song",
+      },
+    ],
 
-    isPublic: { type: Boolean, default: false },
+    isPublic: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
-// 👇 ADD INDEX
-PlaylistSchema.index({ userId: 1 });//1->acending -1->descending
-/*
-This tells MongoDB:
-  Create a fast lookup table for userId in the playlists collection.
-  So MongoDB can jump directly to playlists of a user instead of scanning everything.
 
-*/
+/* 🔥 INDEXES */
 
 
+// Prevent duplicate playlist names per user
+PlaylistSchema.index({ owner: 1, name: 1 }, { unique: true });
 
-export const PlaylistModel = mongoose.model("Playlist", PlaylistSchema);
+export const UserPlaylistModel = mongoose.model("UserPlaylist", PlaylistSchema);

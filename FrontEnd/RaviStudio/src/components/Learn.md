@@ -49,6 +49,15 @@ React calls the component again:Profile()
 
 ->***Never use state just after dispatch() the action instaed use useEffect hook to use the state and inside the dependency array pass these states so that whenever these state will be changed then useEffect runs and state will be used(SignInPage)
 
+$addToSet:✅✅✅✅✅
+  Inserts into array only if value does not already exist
+  Prevents duplicates automatically
+  Is atomic (safe for concurrent requests)
+  No manual checks needed
+
+
+
+
 
 
 

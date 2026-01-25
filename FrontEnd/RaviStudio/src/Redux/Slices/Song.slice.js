@@ -1,32 +1,43 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState={
-  songid:null,
-  artist:"hello sir ji",
-  songname:null,
-  cover:null,
-  idx:null,
-  totalsong:null,
-  MasterFileUrl:"http://localhost:4500/hls-output/1769016309072-Martin_Bravi_Needed_You.mp3/index.m3u8",
+  SongArray:[],
+  currsongidx:0,
   isPlaying:false,
+  favouriteSongArray:[],
+  FavouritePageOpenOrNot:false,
+  UserShowSongOpenOrNot:false,
+  SongDeletePopUp:false,
+  UserPlaylist:[]
+
 }
 const SongSlice=createSlice({
   initialState,
   name:"Song",
   reducers:{
-    SaveSong:(state,action)=>{
-      state.artist=action.payload.artist
-      state.songname=action.payload.songname
-      state.cover=action.payload.cover
-      state.idx=action.payload.idx
-      state.totalsong=action.payload.totalsong
-      state.MasterFileUrl=action.payload.MasterFileUrl
-      state.songid=action.payload.songid
-      
-      
-    },
+    
     SetisPlaying:(state,action)=>{
       state.isPlaying=action.payload
-    }
+    },
+    SetSongArray:(state,action)=>{
+      state.SongArray=action.payload
+      console.log(action.payload)
+      console.log("songarray")
+    },
+    SetCurrSongIdx:(state,action)=>{
+      state.currsongidx=action.payload
+    },
+    SetFavouriteSongArray:(state,action)=>{
+      state.favouriteSongArray=action.payload
+    },
+    SetFavouirtePageOpenOrNot:(state,action)=>{
+      state.FavouritePageOpenOrNot=action.payload
+    },
+    SetUserPlaylist:(state,action)=>{
+      state.UserPlaylist=action.payload
+      console.log(action.payload)
+      console.log("user playlist slice")
+
+    },
   },
   extraReducers:(addBuilder) => {
       
@@ -35,4 +46,4 @@ const SongSlice=createSlice({
 
 })
 export const SongReducer=SongSlice.reducer;
-export const {SaveSong,SetisPlaying} =SongSlice.actions
+export const {SetisPlaying,SetUserPlaylist,SetSongArray,SetCurrSongIdx,SetFavouriteSongArray,SetFavouirtePageOpenOrNot} =SongSlice.actions

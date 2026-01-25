@@ -197,9 +197,9 @@ export const login = async (req, res, next) => {
 };
 
 export const refreshAccessToken = async (req, res) => {
-  console.log(req.cookies)
+  // console.log(req.cookies)
   const refreshToken = req.cookies.refreshToken;
-  console.log(req.cookies);
+  // console.log(req.cookies);
   if (!refreshToken) {
     return res.status(401).json({
       success: false,
@@ -408,3 +408,56 @@ export const UpdateUserLang = async (req, res, next) => {
     });
   }
 };
+
+export const addToFavourites = async (req, res, next) => {
+  try {
+    const userId = req.user.id;       // from protect middleware
+    const { songId } = req.body;
+
+    if (!songId) {
+      return res.status(400).json({
+        success: false,
+        msg: "Song ID is required",
+      });
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { favoriteSongs: songId }, // 👈 NO DUPLICATES
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      msg: "Song added to favourites",
+      favourites: updatedUser.FavSongData,
+    });
+  } catch (error) {
+    return res.send({success:false,msg:"error in favourite song post"})
+  }
+};
+
+export const GetFavouriteSongId=async(req,res,next)=>{
+  const userId = req.user.id;       // from protect middleware
+    
+  try {
+
+    let data=await UserModel.findById(userId);
+    if(data){
+      return res.send({success:true,msg:data.favoriteSongs})
+    }
+  } catch (error) {
+    return res.send({success:false,msg:"error in Getting favourite song"})
+    
+  }
+
+}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Music, Type, ImagePlus, FileText, Upload } from "lucide-react";
 import { toast } from "react-toastify";
-
+import axios from "axios"
 export default function AddPlaylist() {
   const [formData, setFormData] = useState({
     name: "",
@@ -35,28 +35,40 @@ export default function AddPlaylist() {
     if (imageFile) payload.append("image", imageFile);
 
     try {
-      await fetch("https://your-backend-api/playlists", {
-        method: "POST",
-        body: payload,
-      });
+      axios.defaults.withCredentials=true;
+      let {data}=await axios.post("http://localhost:4500/CreateUserPlaylist", payload);
+      if(data.success){
 
-      alert("Playlist created successfully 🎶");
-      setFormData({ name: "", title: "", description: "" });
-      setImageFile(null);
-      setPreview(null);
+        toast.success("Playlist created successfully 🎶");
+        setFormData({ name: "", title: "", description: "" });
+        setImageFile(null);
+        setPreview(null);
+      }
+      else{
+        alert("error occured during playlist add")
+      }
     } catch (err) {
-      console.error(err);
-      toast.warn("Failed to create playlist ❌");
+      if(err.response.data.msg=="This Playlist already exist"){
+        toast.warn("This Playlist already exist ❌");
+
+      }
+      else{
+
+        toast.warn("Failed to create playlist ❌");
+      }
     }
   };
 
   return (
-    <div className="min-h-screen md:w-[90%] w-full flex items-center justify-center  px-4">
+    <div className="min-h-screen md:w-[90%] w-full  items-center justify-center  px-4">
+      <div className="w-full h-[80px]">
+
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl"
+        className="w-full max-w-xl bg-white/5 backdrop-blur-xl mx-auto border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl"
       >
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-8">
@@ -139,6 +151,10 @@ export default function AddPlaylist() {
           </motion.button>
         </form>
       </motion.div>
+      <div className="w-full h-[80px]">
+
+      </div>
+      
     </div>
   );
 }

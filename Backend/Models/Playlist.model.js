@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const playlistschema=new mongoose.Schema({
   name:{
     type:String,
+    trim:true,
+    
 
   },
 

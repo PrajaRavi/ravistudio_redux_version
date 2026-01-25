@@ -3,6 +3,7 @@ import SingerHorizontalScroll from './SingerSection'
 import { useDispatch,useSelector } from 'react-redux'
 import PlaylistSection from './PlaylistSection'
 import Footer from './Footer'
+import UserPlaylistSection from './UserPlaylist'
 function Home() {
   return (
     <>
@@ -14,6 +15,7 @@ function Home() {
     <PlaylistSection heading={"New Released Song"}/>
     <PlaylistSection heading={"Feature Playlist"}/>
     <PlaylistSection heading={"Feature Playlist"}/>
+    <UserPlaylistSection heading={"My Playlist"}/>
     {/* <SingerHorizontalScroll heading={"New Released Song"}/> */}
     {/* <SingerHorizontalScroll heading={"Feature Playlist"}/> */}
     <Footer/>

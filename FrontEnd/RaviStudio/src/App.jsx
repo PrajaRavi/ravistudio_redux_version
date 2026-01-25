@@ -20,6 +20,9 @@ import FullScreenLoader from './components/FetchUserLoading'
 import { GetUser } from './Redux/Thunk/User.thunk'
 import Layout1 from './components/layout/layout1'
 import Favourite from './components/Favourite'
+import Private from './components/layout/Private'
+import UpdateUser from './components/UpdateUser'
+import UserShowSong from './components/UserShowSong'
 function App() {
 const dispatch=useDispatch()
 const FetchUserLoading=useSelector(state=>state.User.GetUserLoading)
@@ -64,15 +67,20 @@ return ()=>{
 <Routes>
 
      <Route path='/' element={<Home/>}/>
+     <Route path='/lang' element={<LanguageSelectionPage/>}/>
      <Route path='/contact' element={<ContactUs/>}/>
-     <Route path='/addplaylist' element={<AddPlaylist/>}/>
-     <Route path='/admin' element={<AdminDashboard/>}/>
+
      <Route path='/signup' element={<SignUpPage/>}/>
      <Route path='/signin' element={<SignInPage/>}/>
+     <Route element={<Private/>}>
+     <Route path='/addplaylist' element={<AddPlaylist/>}/>
+     <Route path='/updateuser/:userid' element={<UpdateUser/>}/>
+     <Route path='/admin' element={<AdminDashboard/>}/>
      <Route path='/favourite' element={<Favourite/>}/>
      <Route path='/showsong/:playlist' element={<PlaylistSongs/>}/>
-     <Route path='/lang' element={<LanguageSelectionPage/>}/>
+     <Route path='/usershowsong/:userplaylist' element={<UserShowSong/>}/>
      <Route path='/VerifyOTP' element={<OTPVerification/>}/>
+     </Route>
 </Routes>
 
 <BottomMusicPlayer/>

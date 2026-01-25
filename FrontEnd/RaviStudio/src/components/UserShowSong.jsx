@@ -6,23 +6,36 @@ import { toast } from 'react-toastify'
 import { Trash, Play } from 'lucide-react'
 import { SetCurrSongIdx, SetFavouirtePageOpenOrNot, SetisPlaying, SetSongArray } from '../Redux/Slices/Song.slice'
 import DeleteSongPopup from './utils/PopUp'
-function Favourite() {
+import { useParams } from 'react-router-dom'
+import PlaylistSkeleton from './SkeltonLoading/ShowSong'
+function UserShowSong() {
   let [songs,setsongs]=useState([])
   const [open, setOpen] = useState(false); //this is for popup
   const FavSongData = useSelector((state) => state.Song.favouriteSongArray); //This is nothing but data of the favouriteSongId not song detail 
+  let [loading,setloading]=useState()
   const SongData = useSelector((state) => state.Song.SongArray); //This is the actual songarray where all the song lived which have to play
+    let [playlistdata,setplaylistdata]=useState([])
+  const {userplaylist}=useParams()
   const currsongindex = useSelector((state) => state.Song.currsongidx);
   let [DeletedSongId,setDeletedSongId]=useState("")
   const IsFavouriteSongPlay=useSelector((state) => state.Song.FavouritePageOpenOrNot)
   const dispatch=useDispatch()
 const GetAllSongs=async()=>{
-  axios.defaults.withCredentials=true;
-  let {data}=await axios.get(`http://localhost:4500/songs/GetAllFavouriteSong`)
-  if(data.success){
-    setsongs(data.songs)
-  }
-  else{
-    toast.error("error during song fetching in favourite")
+  try {
+    setloading(true)
+    axios.defaults.withCredentials=true;
+    let {data}=await axios.get(`http://localhost:4500/playlist/get-user-playlist-song-by-id/${userplaylist}`)
+    console.log(data)
+    if(data.success){
+      setsongs(data.msg)
+    }
+    else{
+      toast.error("error during song fetching in favourite")
+    }
+  } catch (error) {
+    
+  }finally{
+setloading(false)
   }
 }
 const HandleSongPlay=(idx)=>{
@@ -39,28 +52,26 @@ const HandleSongPlay=(idx)=>{
     
 
 }
+  const FetchPlaylistById=async()=>{
+    axios.defaults.withCredentials=true;
+      let {data}=await axios.get(`http://localhost:4500/playlist/get-user-playlist-by-id/${userplaylist}`)
+      if(data.success){
+        setplaylistdata(data.msg)
+        
+      }
+      
+    }
+
 const HandleSongDelete=async (songId)=>{
 setDeletedSongId(songId)
   setOpen(true)
   
-  // try {
-    
-  //   axios.defaults.withCredentials=true
-  //   let {data}=await axios.post(`http://localhost:4500/songs/DeleteSongFromBothSection/${songId}`)
-    
-  //   if(data.success){
-      
-  //   }
-  // } catch (error) {
-  //  alert(error) 
-  // }
-    // call delete song API here
-
+  
   
 }
 
 useEffect(()=>{
-
+FetchPlaylistById()
 },[])
 useEffect(()=>{  
 GetAllSongs()
@@ -68,17 +79,28 @@ GetAllSongs()
 
   return (
     <>
-    <div className='min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
+    {loading==false?<div className='min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
       <div className='w-full h-[80px]'>
         
 
       </div>
+      {/* showing playlist detail */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row gap-6 mb-10">
+              <img src={`http://localhost:4500/${playlistdata.coverImage}`} alt="playlist" className="w-48 h-48 rounded-2xl object-cover" />
+              <div className="flex flex-col justify-center">
+                <h1 className="text-3xl font-bold">{playlistdata.name}</h1>
+                <p className="text-gray-400 mt-2 max-w-xl">{playlistdata.title}</p>
+                <span className="text-sm text-gray-500 mt-1">10 Songs</span>
+              </div>
+            </motion.div>
+      
+      {/* showing songlist */}
       <div className='w-full h-full mx-auto'>
-         {songs.length!=0?songs.map((song,index) => (
+         {songs?.length!=0?songs?.map((song,index) => (
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className={songs[currsongindex]?._id!=song?._id?"relative flex my-2 items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative my-2 flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
+            className={songs[currsongindex]._id!=song._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl my-2 rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
             // className={"relative flex items-center gap-4 z-10 w-full bg-white/10 border my-2  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}
@@ -99,35 +121,18 @@ GetAllSongs()
         )): 
         <div className='w-full  items-center flex justify-center'>
 
-        <h1 className='text-3xl font-bold'>Nothing here in favourite</h1>
+        <h1 className='text-3xl font-bold'>Nothing here in the playlist</h1>
         </div>
         }
         
       </div>
       
       
-    </div>
-    {<DeleteSongPopup
-  open={open}
-  onClose={() => setOpen(false)}
-  onConfirm={async ()=>{
-    try {
-    // alert(DeletedSongId)
-    axios.defaults.withCredentials=true
-    let {data}=await axios.post(`http://localhost:4500/songs/DeleteSongFromBothSection/${DeletedSongId}`)
+    </div>:<PlaylistSkeleton/>}
     
-    if(data.success){
-      setOpen(false)
-    }
-      
-  } catch (error) {
-   alert(error) 
-  }
-  
-  }}/>}
     </>
 
   )
 }
 
-export default Favourite
+export default UserShowSong
