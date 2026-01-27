@@ -23,6 +23,7 @@ import { SongRouter } from "./Routes/song.route.js";
 import cookieParser from "cookie-parser";
 import { SongModel } from "./Models/song.model.js";
 import { UserPlaylistModel } from "./Models/User.playlist.model.js";
+import sharp from "sharp";
 
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
@@ -35,7 +36,7 @@ DBConnect();
 // Enable CORS for all routes
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173","http://localhost:4173"],
     credentials: true,
   }),
 );
@@ -671,6 +672,14 @@ async function extractAudioMetadata(filePath, AudioURLObj) {
   }
 }
 
+const outputPath = path.join(
+  "Images/PlaylistImg",
+  `p12.webp`
+);
+// sharp("./Images/PlaylistImg/p12.jpg")
+//   .resize(300)
+//   .webp({ quality: 70 })
+//   .toFile(outputPath)
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { SetCurrUser, SetLanguage } from "../Slices/User.slice";
+import { SetCurrUser, SetIsAdmin, SetLanguage } from "../Slices/User.slice";
 
 // Axios instance for API requests with cookies
 const api = axios.create({
@@ -28,6 +28,7 @@ export const GetUser = createAsyncThunk(
     try {
       let { data } = await api.get(`user/me`);
       console.log(data.data);
+      dispatch(SetIsAdmin(data.data.isAdmin))
       
       dispatch(SetLanguage({code:data.data.language}))
       return data.data;

@@ -200,3 +200,41 @@ export const addSongToMultiplePlaylists = async (req, res) => {
     });
   }
 };
+
+export const DeleteUserPlaylist=async(req,resp)=>{
+  try {
+    let data=await UserPlaylistModel.deleteOne({_id:req.params.id})
+    console.log(data)
+    if(data){
+    return resp.status(200).json({
+      success: true,
+      message: "successfully deleted",
+    });  
+    }
+  } catch (error) {
+    console.log(error)
+    return resp.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+}
+
+export const DeleteUserPlaylistSong=async(req,resp)=>{
+  try {
+let data=await UserPlaylistModel.findByIdAndUpdate({_id:req.params.playlistid},{
+  $pull:{songs:req.params.songid}
+})    
+if(data) return resp.status(200).json({
+      success: true,
+      message: "Successfully deleted",
+    }); 
+  } catch (error) {
+console.log(error)
+    return resp.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+    
+  }
+}

@@ -21,7 +21,7 @@ const footerData = {
 
 export default function Footer() {
   return (
-    <footer className="relative w-full mt-20 text-gray-300">
+    <footer className="relative w-full mt-5 text-gray-300">
       {/* Glass background */}
       <div className="absolute inset-0 bg-white/5 backdrop-blur-xl border-t border-white/10" />
 

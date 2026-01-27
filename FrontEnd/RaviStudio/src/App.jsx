@@ -1,35 +1,42 @@
-import React, { useEffect } from 'react'
-import MusicNavbar from './components/Navbar'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { RiverThemeUnderwater } from './components/RiverTheme'
-import BottomMusicPlayer from './components/MusicPlayer'
+
 import { BrowserRouter,Routes,Route } from "react-router-dom"
 let interval;
-import Home from './components/Home'
-import ContactUs from './components/Contact'
-import AddPlaylist from './components/AddPlaylist'
-import AdminDashboard from './components/Admin'
-import SignUpPage from './components/SignUp'
-import SignInPage from './components/SignIn'
-import PlaylistSongs from './components/ShowSong'
-import LanguageSelectionPage from './components/LanguageSelect'
-import OTPVerification from './components/OTPVerification'
 import { SetCurrUser, SetLogin } from './Redux/Slices/User.slice'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import FullScreenLoader from './components/FetchUserLoading'
 import { GetUser } from './Redux/Thunk/User.thunk'
-import Layout1 from './components/layout/layout1'
-import Favourite from './components/Favourite'
 import Private from './components/layout/Private'
-import UpdateUser from './components/UpdateUser'
-import UserShowSong from './components/UserShowSong'
+import BottomMusicPlayer from "./components/MusicPlayer"
+//<-----------------Now due to this memo function these page will not loaded every time ----------------------> 
+import MusicNavbar from './components/Navbar';
+
+const Navbar = React.memo(MusicNavbar);
+const MusicPlayer = React.memo(BottomMusicPlayer);
+
+const Home=lazy(()=>import("./components/Home"))
+const ContactUs=lazy(()=>import("./components/Contact"))
+const AddPlaylist=lazy(()=>import("./components/AddPlaylist"))
+const AdminDashboard=lazy(()=>import("./components/Admin"))
+const SignUpPage=lazy(()=>import("./components/SignUp"))
+const SignInPage=lazy(()=>import("./components/SignIn"))
+const PlaylistSongs=lazy(()=>import("./components/ShowSong"))
+const LanguageSelectionPage=lazy(()=>import("./components/LanguageSelect"))
+const OTPVerification=lazy(()=>import("./components/OTPVerification"))
+const Favourite=lazy(()=>import("./components/Favourite"))
+const UpdateUser=lazy(()=>import("./components/UpdateUser"))
+const UserShowSong=lazy(()=>import("./components/UserShowSong"))
+axios.defaults.withCredentials=true
 function App() {
 const dispatch=useDispatch()
 const FetchUserLoading=useSelector(state=>state.User.GetUserLoading)
 const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
+const UserUpdatedProfile=useSelector(state=>state.Song.userupdated) //this is just for telling that their is an updation in user profile so fetch user again
 
 async function RefreshToken(){
-  axios.defaults.withCredentials=true
+  
             let {data}=await axios.post(`http://localhost:4500/user/refresh-token/`,{withCredentials:true}).
             catch(err=>console.log(err.message))
             console.log(data)
@@ -44,28 +51,33 @@ async function RefreshToken(){
     if(localStorage.getItem("CurrUser")){
       
       dispatch(SetLogin(true))  
-       interval=setInterval(RefreshToken,2000)
+       interval=setInterval(RefreshToken,10000)
     }
     else{
       dispatch(SetLogin(false))
     }
-return ()=>{
+return ()=>(
   clearInterval(interval)
-}
+)
+
+
   },[])
+  
   useEffect(()=>{
     dispatch(GetUser())
-   },[IsUserLogin])
+    
+   },[IsUserLogin,UserUpdatedProfile])
   return (
     <>
     <RiverThemeUnderwater>
 <BrowserRouter>
 {FetchUserLoading?<FullScreenLoader/>:null}
 
-<MusicNavbar/>
+<Navbar/>
+<Suspense fallback={<FullScreenLoader/>}>
 
 <Routes>
-
+{/* Performing routing based splitting */}
      <Route path='/' element={<Home/>}/>
      <Route path='/lang' element={<LanguageSelectionPage/>}/>
      <Route path='/contact' element={<ContactUs/>}/>
@@ -82,8 +94,9 @@ return ()=>{
      <Route path='/VerifyOTP' element={<OTPVerification/>}/>
      </Route>
 </Routes>
+</Suspense>
 
-<BottomMusicPlayer/>
+<MusicPlayer/>
 </BrowserRouter>
     </RiverThemeUnderwater>
 

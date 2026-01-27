@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {Helmet} from "react-helmet-async"
 import {
   Users,
   MessageCircle,
@@ -61,6 +62,15 @@ export default function AdminDashboard() {
   };
 
   return (
+    <>
+    <Helmet>
+            <title>Admin Page | My Music App</title>
+    
+            <meta
+              name="description"
+              content="Listen to trending playlists and curated songs updated daily."
+            />
+          </Helmet>
     <div className="min-h-screen w-full bg-black text-white flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="md:w-64 w-full md:min-h-screen bg-white/5 backdrop-blur-xl border-r border-white/10">
@@ -154,6 +164,8 @@ export default function AdminDashboard() {
       {/* Delete Modal */}
       <AnimatePresence>{confirmOpen && (<motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><motion.div initial={{scale:0.8}} animate={{scale:1}} className="bg-black border border-white/10 rounded-xl p-6 w-full max-w-sm"><h3 className="text-lg font-semibold mb-3">Confirm Delete</h3><p className="text-gray-400 mb-6">Are you sure you want to delete this {deleteType}?</p><div className="flex justify-end gap-3"><button onClick={()=>setConfirmOpen(false)} className="px-4 py-2 rounded-lg bg-white/10">Cancel</button><button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-red-600">Delete</button></div></motion.div></motion.div>)}</AnimatePresence>
     </div>
+    </>
+
   );
 }
 

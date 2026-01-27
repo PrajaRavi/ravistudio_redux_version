@@ -1,9 +1,12 @@
 @import "tailwindcss";
 /* global.css */
 
+
 html {
   scroll-behavior: smooth;
+  
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

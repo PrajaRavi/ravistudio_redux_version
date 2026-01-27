@@ -55,6 +55,22 @@ $addToSet:✅✅✅✅✅
   Is atomic (safe for concurrent requests)
   No manual checks needed
 
+1️⃣ Code loading(also called code splitting)
+➡️ When should the JS code of the component be downloaded?
+2️⃣ Component rendering
+➡️ When should React actually render it into the DOM?
+👉 Lazy loading solves ONLY problem #1
+👉 IntersectionObserver solves problem #2
+
+
+<----------------------------Concept of throttle and debounce------------------------------->
+->Both are just techniques used to only trigger a function after a fix interval of time
+Throttle->it is useful when we want to call a function after a fix interval of time and also we can give a max limit
+Debouncing->for ex->on scroll function if i execute my function A onscroll then it it is normal and if i call it after 2s or a fix interval of time using setinterval then it is throttle but if some how i call it after scrollend then it is debouncing
+
+<---------------------------google LightHouse------------------------------>
+
+
 
 
 

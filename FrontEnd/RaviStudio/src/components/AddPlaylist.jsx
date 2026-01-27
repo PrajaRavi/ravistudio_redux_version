@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Music, Type, ImagePlus, FileText, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios"
+import {Helmet} from "react-helmet-async"
+
 export default function AddPlaylist() {
   const [formData, setFormData] = useState({
     name: "",
@@ -60,6 +62,18 @@ export default function AddPlaylist() {
   };
 
   return (
+    
+    <>
+    <Helmet>
+        <title>AddPlaylist Page | My Music App</title>
+
+        <meta
+          name="description"
+          content="Listen to trending playlists and curated songs updated daily."
+        />
+      </Helmet>
+
+    
     <div className="min-h-screen md:w-[90%] w-full  items-center justify-center  px-4">
       <div className="w-full h-[80px]">
 
@@ -142,6 +156,7 @@ export default function AddPlaylist() {
 
           {/* Submit */}
           <motion.button
+          name="submit"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             type="submit"
@@ -156,5 +171,7 @@ export default function AddPlaylist() {
       </div>
       
     </div>
+    </>
+
   );
 }

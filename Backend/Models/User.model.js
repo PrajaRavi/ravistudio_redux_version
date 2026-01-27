@@ -18,6 +18,10 @@ const UserSchema = new Schema(
   type: String,
   default: "",
 },
+contact:{
+  type:"String",
+  default:0
+},
     age: {
       type: String,
       default:""

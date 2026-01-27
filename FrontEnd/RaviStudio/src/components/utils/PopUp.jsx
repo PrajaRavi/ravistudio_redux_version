@@ -1,8 +1,11 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, X } from "lucide-react";
+import { useSelector } from "react-redux";
 
 export default function DeleteSongPopup({ open, onClose, onConfirm }) {
+  const OpenDeletePlaylistPopUp=useSelector((state) => state.Song.OpenDeletePlaylistPopUp)
+  
   return (
     <AnimatePresence>
       {open && (
@@ -24,6 +27,7 @@ export default function DeleteSongPopup({ open, onClose, onConfirm }) {
           >
             {/* Close Button */}
             <button
+            name="close"
               onClick={onClose}
               className="absolute top-3 right-3 text-gray-300 hover:text-white"
             >
@@ -43,16 +47,16 @@ export default function DeleteSongPopup({ open, onClose, onConfirm }) {
 
             {/* Text */}
             <h2 className="text-center text-xl font-semibold text-white">
-              Delete this song?
+             {OpenDeletePlaylistPopUp?"Delete this playlist":" Delete this song?"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-300">
-              This action cannot be undone. The song will be permanently removed
-              from your library.
+              {OpenDeletePlaylistPopUp?"This action cannot be undone. The playlist will be permanently removed from your library.":"This action cannot be undone. The song will be permanently removed from your library."}
             </p>
 
             {/* Buttons */}
             <div className="mt-6 flex gap-3">
               <button
+              name="close"
                 onClick={onClose}
                 className="flex-1 rounded-xl border border-white/20
                            bg-white/5 py-2 text-sm text-gray-200
@@ -61,6 +65,7 @@ export default function DeleteSongPopup({ open, onClose, onConfirm }) {
                 Cancel
               </button>
               <button
+              name="confirm"
                 onClick={onConfirm}
                 className="flex-1 rounded-xl bg-red-600/80 py-2
                            text-sm font-semibold text-white

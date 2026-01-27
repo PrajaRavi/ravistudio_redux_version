@@ -8,6 +8,8 @@ import {useSelector,useDispatch} from "react-redux"
 import { Calendar, Lock, Mail, Phone, Satellite, User } from 'lucide-react';
 import { SignUpUser } from '../Redux/Thunk/User.thunk';
 import { SetCurrUser } from '../Redux/Slices/User.slice';
+import {Helmet} from "react-helmet-async"
+
 const SignUp = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -91,6 +93,15 @@ const SignUp = () => {
     }
   },[SignUpFormLoading])
   return (
+    <>
+    <Helmet>
+        <title>SignUp Page | My Music App</title>
+
+        <meta
+          name="description"
+          content="Listen to trending playlists and curated songs updated daily."
+        />
+      </Helmet>
     <div className="h-[500px] z-20 flex items-center justify-center  p-4">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
@@ -166,6 +177,7 @@ const SignUp = () => {
 
           {/* Submit */}
            <motion.button
+           name='signup'
       whileHover={!SignUpFormLoading ? { scale: 1.05 } : {}}
       whileTap={!SignUpFormLoading ? { scale: 0.95 } : {}}
       type="submit"
@@ -184,7 +196,10 @@ const SignUp = () => {
         </form>
       </motion.div>
     </div>
+    </>
+
   );
+  
 }
 
 /* ---------- Polymorphism Input Field (like Contact page) ---------- */

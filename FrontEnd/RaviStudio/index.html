@@ -4,12 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./src/assets/favi.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+    name="description"
+    content="Stream high quality music, discover new artists, create playlists and enjoy adaptive streaming on My Music App."
+  />
+    <link
+  rel="preload"
+  as="image"
+  href="http://localhost:4500/arjit.webp"
+/>
+
     <title>RaviStudio</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div  id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
+    <!-- <script>
       if('serviceWorker' in navigator){
         navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(function (registration){
           console.log('Service Worker Registered');
@@ -18,6 +28,6 @@
           console.log('Service Worker is ready');
         })
       }
-    </script>
+    </script> -->
   </body>
 </html>

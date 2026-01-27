@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { Trash, Play } from 'lucide-react'
 import { SetCurrSongIdx, SetFavouirtePageOpenOrNot, SetisPlaying, SetSongArray } from '../Redux/Slices/Song.slice'
 import DeleteSongPopup from './utils/PopUp'
+import { Helmet } from 'react-helmet-async'
 function Favourite() {
   let [songs,setsongs]=useState([])
   const [open, setOpen] = useState(false); //this is for popup
@@ -28,13 +29,13 @@ const GetAllSongs=async()=>{
 const HandleSongPlay=(idx)=>{
   // alert(IsFavouriteSongPlay)
   if(IsFavouriteSongPlay==false){
-    dispatch(SetSongArray(songs))
+    dispatch(SetFavouirtePageOpenOrNot(true))
   }
+  dispatch(SetSongArray(songs))
   setTimeout(() => {
     
     dispatch(SetCurrSongIdx(idx))
     dispatch(SetisPlaying(true))
-    dispatch(SetFavouirtePageOpenOrNot(true))
   }, 100);
     
 
@@ -60,39 +61,54 @@ setDeletedSongId(songId)
 }
 
 useEffect(()=>{
-
-},[])
+console.log(songs)
+console.log("favourite songs")
+},[songs])
 useEffect(()=>{  
 GetAllSongs()
-},[FavSongData,open])
+},[open])
 
   return (
     <>
+    <Helmet>
+            <title>Admin Page | My Music App</title>
+    
+            <meta
+              name="description"
+              content="Listen to trending playlists and curated songs updated daily."
+            />
+          </Helmet>
     <div className='min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
       <div className='w-full h-[80px]'>
         
 
       </div>
       <div className='w-full h-full mx-auto'>
-         {songs.length!=0?songs.map((song,index) => (
+         {songs?.length!=0?songs.map((song,index) => (
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className={songs[currsongindex]?._id!=song?._id?"relative flex my-2 items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative my-2 flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
+            className={SongData[currsongindex]?._id!=song?._id?"relative flex my-2 items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative my-2 flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
             // className={"relative flex items-center gap-4 z-10 w-full bg-white/10 border my-2  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}
-            <img src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
+            <img loading='lazy' src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
 
             {/* Title */}
             <div className="flex-1">
-              {window.innerWidth>500?<h3 className="font-semibold truncate">{song.title}</h3>:<h3 className="font-semibold truncate">{String(song.title).length>15?String(song.title).slice(0,15)+"...":song.title}</h3>}
-             {window.innerWidth>500?<p className="font-semibold truncate">{song.artist}</p>:<h3 className="font-semibold truncate">{String(song.artist).length>15?String(song.artist).slice(0,15)+"...":song.artist}</h3>}
+             <h3 className="hidden sm:block truncate">{song.title}</h3>
+<h3 className="block sm:hidden truncate">
+  {song.title.slice(0, 15)}...
+</h3>
+             <h3 className="hidden sm:block truncate">{song.artist}</h3>
+<h3 className="block sm:hidden truncate">
+  {song.artist.slice(0, 15)}...
+</h3>
              </div>
 
             {/* Actions */}
-             <button onClick={()=>HandleSongPlay(index)} className="cursor-pointer"><Play /></button>
-             <button onClick={()=>HandleSongDelete(song._id)} className="cursor-pointer text-red-300 hover:text-red-700"><Trash /></button>
+             <button name='play' onClick={()=>HandleSongPlay(index)} className="cursor-pointer"><Play /></button>
+             <button name='delete' onClick={()=>HandleSongDelete(song._id)} className="cursor-pointer text-red-300 hover:text-red-700"><Trash /></button>
             
             
           </motion.div>

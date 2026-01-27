@@ -27,6 +27,9 @@ const UserSlice = createSlice({
       state.CurrUser=null
       state.CurrUser = action.payload;
     },
+    SetIsAdmin:(state, action) => {
+      state.IsAdmin=action.payload
+    },
     
   },
   extraReducers: (addBuilder) => {
@@ -70,6 +73,6 @@ const UserSlice = createSlice({
   
   },
 });
-export const { SetLanguage, SetLogin, SetCurrUser, Setsignindata } =
+export const { SetLanguage, SetLogin, SetCurrUser, Setsignindata,SetIsAdmin } =
   UserSlice.actions;
 export const UserReducer = UserSlice.reducer;

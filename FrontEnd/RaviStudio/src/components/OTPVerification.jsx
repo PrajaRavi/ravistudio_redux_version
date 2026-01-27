@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { Helmet } from "react-helmet-async";
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
@@ -88,6 +88,15 @@ const handleSubmit = async (e) => {
 };
 
   return (
+    <>
+    <Helmet>
+            <title>Admin Page | My Music App</title>
+    
+            <meta
+              name="description"
+              content="Listen to trending playlists and curated songs updated daily."
+            />
+          </Helmet>
     <div className="min-h-screen w-full flex items-center justify-center bg-transparent px-4">
       
       {/* Glass Card */}
@@ -190,7 +199,8 @@ const handleSubmit = async (e) => {
           </motion.div>
 
           {/* Button */}
-          <motion.button
+          <motion.button 
+          name="submit"
   whileHover={{ scale: !loading ? 1.04 : 1 }}
   whileTap={{ scale: !loading ? 0.96 : 1 }}
   disabled={loading}
@@ -219,6 +229,8 @@ const handleSubmit = async (e) => {
         </form>
       </motion.div>
     </div>
+    </>
+
   );
 };
 

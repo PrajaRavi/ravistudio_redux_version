@@ -27,30 +27,43 @@ console.log(isAtEnd)
 };
 
  const fetchSingers = async (page = 1, limit = 10) => {
-  const { data } = await axios.get(
-    `http://localhost:4500/playlist/get-all-playlist/?page=${page}&limit=${limit}`
-  );
+  setLoading(true)
+  try {
+    
+    const { data } = await axios.get(
+      `http://localhost:4500/playlist/get-all-playlist/?page=${page}&limit=${limit}`
+    );
   setTotalPages(data.totalPages);
 
   if(page>1){
-      // console.log([...ApiData,...data.singers])
+    // console.log([...ApiData,...data.singers])
       setSingers((prev)=>[...prev,...data.singers])
     }
     else{
       console.log(data.singers)
       setSingers(data.singers)
     }
+  } catch (error) {
+    
+  }
+  finally{
+    setLoading(false)
+  }
   };
 
   useEffect(()=>{  
-  fetchSingers(page)
+    if(page<=totalPages){
+      fetchSingers(page)
+    }
+
   },[page])
   
 
 
   return (
+    // i remoed skelton loading from here because when i scroll to end then due to this loading effect the scrollbar move to start point
     <>
-   {loading==false? <section className="md:w-[94%] w-[96%]">
+   <section className="md:w-[94%] min-h-[210px] mx-auto w-[96%]">
   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-100 mb-1">
     {heading}
   </h2>
@@ -60,7 +73,7 @@ console.log(isAtEnd)
     onScroll={handleScroll}
     className="flex gap-4 sm:gap-5 overflow-x-auto
                scroll-smooth snap-x snap-mandatory
-               [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
                "
               >
     {singers.map((singer, i) => (
@@ -79,6 +92,9 @@ console.log(isAtEnd)
           <img
             src={`http://localhost:4500/${singer.playlistimage}`}
             alt={singer.name}
+            decoding="async"
+            width={"150"}
+            height={"150"}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -95,7 +111,7 @@ console.log(isAtEnd)
     ))}
 
     </div>
-</section>:<SingerHorizontalSkeleton/>}
+</section>
 
     </>
 

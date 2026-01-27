@@ -20,7 +20,7 @@ export default function BottomMusicPlayer() {
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
   // const [isPlaying, setIsPlaying] = useState(false);
-  const [loopMode, setLoopMode] = useState("all");
+  const [loopMode, setLoopMode] = useState("");
   const [progress, setProgress] = useState(0);
   const dispatch=useDispatch()
 
@@ -74,10 +74,14 @@ useEffect(() => {
         lowLatencyMode: true,
       });
       if(currsongindex){
-        // alert('chala')
+
         hls.loadSource(SongData[currsongindex]?.audioURL?.master);
       }
-      hls.attachMedia(audio);
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+
+        hls.attachMedia(audio);
+      })
+
 
       hlsRef.current = hls;
     } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
@@ -208,6 +212,7 @@ useEffect(() => {
           <div className="w-30 h-12 rounded-lg overflow-hidden bg-white/10">
             <img
               src={PlayingGif}
+              loading="lazy"
               alt="playing"
               className={isPlaying?"w-full h-full object-cover anim1":"w-full anim1 h-full object-cover hidden"}
             />
@@ -223,34 +228,35 @@ useEffect(() => {
 
         {/* Controls */}
         <div className="flex items-center relative md:right-20 gap-3 md:gap-4">
-          <button onClick={()=>HandleSuffleSong()}>
+          <button name={"fulle"} onClick={()=>HandleSuffleSong()}>
 
-          <Shuffle size={18} className={suffle==false?"text-gray-400 hover:text-purple-700":"text-purple-700 hover:text-purple-400"} />
+          <Shuffle size={18} className={suffle==false?"text-white hover:text-purple-700":"text-purple-700 hover:text-purple-400"} />
           </button>
-          <button onClick={()=>HandlePrevSong()}>
+          <button name={"back"} onClick={()=>HandlePrevSong()}>
 
 
-          <SkipBack size={22} className="text-gray-300" />
+          <SkipBack  size={22} className="text-gray-300" />
           </button>
 
           <button
+          name="play/pause"
             onClick={() => dispatch(SetisPlaying(!isPlaying))}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600"
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
-          <button onClick={()=>HandleNextSong()}>
+          <button name="next" onClick={()=>HandleNextSong()}>
 
-          <SkipForward  size={22} className="text-gray-300" />
+          <SkipForward  size={22} className="text-white" />
           </button>
 
-          <button onClick={toggleLoop}>
+          <button name="loop" onClick={toggleLoop}>
             {loopMode === "one" ? (
               <Repeat1 size={18} className="text-purple-500" />
             ) : (
               <Repeat
                 size={18}
-                className={loopMode === "all" ? "text-purple-500" : "text-gray-400"}
+                className={loopMode === "all" ? "text-purple-500" : "text-white"}
               />
             )}
           </button>
@@ -268,6 +274,7 @@ useEffect(() => {
             className="w-12 h-12 rounded-full overflow-hidden border border-white/10"
           >
             <img
+            loading="lazy"
               src={`http://localhost:4500/${SongData[parseInt(currsongindex)]?.coverImage}`}
               alt="album"
               className="w-full h-full object-cover"

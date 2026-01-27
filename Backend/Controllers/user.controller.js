@@ -459,5 +459,19 @@ export const GetFavouriteSongId=async(req,res,next)=>{
     return res.send({success:false,msg:"error in Getting favourite song"})
     
   }
-
+  
+}
+export const UpdateUser=async(req,resp)=>{
+  try {
+    let {firstName,lastName,contact,email}=req.body;
+    let userId=req.user.id
+    let data=await UserModel.findOneAndUpdate({_id:userId},{$set:{
+      firstName,lastName,contact,email
+    }})
+    if(data) return resp.send({success:true,msg:"successfully updated"})
+  } catch (error) {
+    console.log(error)
+    return resp.send({success:false,msg:"error in updating user"})
+    
+  }
 }

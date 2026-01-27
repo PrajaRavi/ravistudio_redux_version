@@ -20,17 +20,21 @@ export default function SingerHorizontalScroll({heading}) {
   const isAtEnd =
     el.scrollLeft+el.clientWidth+1>=el.scrollWidth
 console.log(isAtEnd)
-  if (isAtEnd) {
+  if (isAtEnd && page<totalPages) {
+    console.log("hello")
     setPage((prev)=>prev+1)
 
   }
     
 };
  const fetchSingers = async (page = 1, limit = 10) => {
-  const { data } = await axios.get(
-    `http://localhost:4500/singers?page=${page}&limit=${limit}`
-  );
-  setTotalPages(data.totalPages);
+  setLoading(true)
+  try {
+    
+    const { data } = await axios.get(
+      `http://localhost:4500/singers?page=${page}&limit=${limit}`
+    );
+    setTotalPages(data.totalPages);
 
   if(page>1){
       // console.log([...ApiData,...data.singers])
@@ -40,16 +44,25 @@ console.log(isAtEnd)
       console.log(data.singers)
       setSingers(data.singers)
     }
+  } catch (error) {
+    
+  }
+  finally{
+    setLoading(false)
+  }
 };
 
 useEffect(()=>{  
-fetchSingers(page)
+  if(page<=totalPages){
+    fetchSingers(page)
+  }
+
 },[page])
 
 
   return (
     <>
-   {loading==false? <section className="md:w-[94%] w-[96%]">
+    <section  className="md:w-[94%] mx-auto w-[96%] min-h-[210px]">
   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-100 mb-1">
     {heading}
   </h2>
@@ -59,13 +72,13 @@ fetchSingers(page)
     onScroll={handleScroll}
     className="flex gap-4 sm:gap-5 overflow-x-auto
                scroll-smooth snap-x snap-mandatory
-              [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
-
-              "
+               [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+               
+               "
               >
     {singers.map((singer, i) => (
       <div
-         key={i}  // ❗ FIXED KEY (see below)
+         key={singer._id}  // ❗ FIXED KEY (see below)
         className="snap-start group flex-shrink-0
                    w-[130px] sm:w-[140px] md:w-[150px]
                    bg-white/10 backdrop-blur-xl border border-white/10
@@ -79,6 +92,9 @@ fetchSingers(page)
           <img
             src={`http://localhost:4500/${singer.singerimage}`}
             alt={singer.name}
+            decoding="async"
+            width={"150"}
+            height={"150"}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -95,7 +111,7 @@ fetchSingers(page)
     ))}
 
     </div>
-</section>:<SingerHorizontalSkeleton/>}
+</section>
 
     </>
 

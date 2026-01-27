@@ -1,13 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState={
   SongArray:[],
-  currsongidx:0,
+  currsongidx:null,
   isPlaying:false,
   favouriteSongArray:[],
   FavouritePageOpenOrNot:false,
   UserShowSongOpenOrNot:false,
   SongDeletePopUp:false,
-  UserPlaylist:[]
+  UserPlaylist:[],
+  userupdated:false, //koi fark nahi padta ye true hai ya false it is just telling that user profile is updated so that i can call the /user/me api to getuser again
+  OpenDeletePlaylistPopUp:false,
 
 }
 const SongSlice=createSlice({
@@ -38,6 +40,12 @@ const SongSlice=createSlice({
       console.log("user playlist slice")
 
     },
+    SetUpdatedUser:(state,action)=>{
+      state.userupdated=action.payload
+    },
+    SetDeletePlaylistPopUp:(state,action)=>{
+      state.OpenDeletePlaylistPopUp=action.payload
+    }
   },
   extraReducers:(addBuilder) => {
       
@@ -46,4 +54,4 @@ const SongSlice=createSlice({
 
 })
 export const SongReducer=SongSlice.reducer;
-export const {SetisPlaying,SetUserPlaylist,SetSongArray,SetCurrSongIdx,SetFavouriteSongArray,SetFavouirtePageOpenOrNot} =SongSlice.actions
+export const {SetisPlaying,SetUserPlaylist,SetUpdatedUser,SetSongArray,SetCurrSongIdx,SetFavouriteSongArray,SetFavouirtePageOpenOrNot,SetDeletePlaylistPopUp} =SongSlice.actions

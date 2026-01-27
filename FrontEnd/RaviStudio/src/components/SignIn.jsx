@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {Lock, Mail} from "lucide-react"
 import { SetLogin } from "../Redux/Slices/User.slice";
+import {Helmet} from "react-helmet-async"
+
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -134,6 +136,15 @@ const [success, setSuccess] = useState("");
 }, [loading, signindata]);
 
   return (
+    <>
+    <Helmet>
+        <title>SignUp Page | My Music App</title>
+
+        <meta
+          name="description"
+          content="Listen to trending playlists and curated songs updated daily."
+        />
+      </Helmet>
     <div className="min-h-screen w-full flex items-center justify-center  p-4">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
@@ -168,11 +179,12 @@ const [success, setSuccess] = useState("");
 
          <div className="flex justify-end">
     <motion.button
-      type="button"
-      onClick={handleForgotPassword}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="text-sm text-black font-bold hover:underline"
+    name="forgotpass"
+    type="button"
+    onClick={handleForgotPassword}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className="text-sm text-black font-bold hover:underline"
     >
       Forgot password?
     </motion.button>
@@ -180,7 +192,8 @@ const [success, setSuccess] = useState("");
   <span className="font-bold text-black">{error}</span>
           {/* Submit */}
           <motion.button
-                whileHover={!loading ? { scale: 1.05 } : {}}
+          name="siging"
+          whileHover={!loading ? { scale: 1.05 } : {}}
                 whileTap={!loading ? { scale: 0.95 } : {}}
                 type="submit"
                 disabled={loading}
@@ -197,6 +210,7 @@ const [success, setSuccess] = useState("");
         </form>
       </motion.div>
     </div>
+</>
   );
 }
 

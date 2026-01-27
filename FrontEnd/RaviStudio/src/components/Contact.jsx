@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Phone, MessageSquare, Send } from "lucide-react";
-
+import {Helmet} from "react-helmet-async"
 export default function ContactUs() {
   const [formData, setFormData] = useState({
     name: "",
@@ -36,6 +36,15 @@ export default function ContactUs() {
   };
 
   return (
+    <>
+    <Helmet>
+        <title>Contact Page | My Music App</title>
+
+        <meta
+          name="description"
+          content="Listen to trending playlists and curated songs updated daily."
+        />
+      </Helmet>
     <div className="min-h-screen flex items-center justify-center w-[100%] md:w-[90%]  px-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -110,6 +119,7 @@ export default function ContactUs() {
 
           {/* Submit Button */}
           <motion.button
+          name="submit"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             type="submit"
@@ -121,5 +131,7 @@ export default function ContactUs() {
         </form>
       </motion.div>
     </div>
+    </>
+
   );
 }

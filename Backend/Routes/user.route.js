@@ -8,6 +8,7 @@ import {
   refreshAccessToken,
   resendOtp,
   SignUp,
+  UpdateUser,
   verifyOtp,
 } from "../Controllers/user.controller.js";
 import { protect } from "../Middlewares/Toke.auth.js";
@@ -22,3 +23,4 @@ UserRouter.get("/me", protect, getLoggedInUser);
 UserRouter.post("/resend-otp", resendOtp);
 UserRouter.post("/add-favourite-song", protect, addToFavourites);
 UserRouter.get("/get-favourite-songId", protect, GetFavouriteSongId);
+UserRouter.post("/updateuser", protect, UpdateUser);

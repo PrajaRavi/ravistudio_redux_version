@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Music, Search, User, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import {Link} from "react-router-dom"
-import ProfilePage from "./ProfilePage";
+// import ProfilePage from "./ProfilePage";
+const ProfilePage=lazy(()=>import("./ProfilePage"))
 export default function MusicNavbar() {
   const [open, setOpen] = useState(false);
   const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
@@ -81,8 +82,8 @@ export default function MusicNavbar() {
           <div className="w-fit inline-flex gap-2">
 
 <SearchBar/>
-          <button onClick={()=>setopenprofile(true)} className="w-10 h-10 flex  items-center justify-center rounded-full border-purple-700  border-2">
-            {ProfileImg!=""?<img src={ProfileImg?.includes("UserProfile")?`http://localhost:4500/${ProfileImg}`:ProfileImg} alt={ProfileImg} className="rounded-full" />:
+          <button name="profile" onClick={()=>setopenprofile(true)} className="w-10 h-10 flex  items-center justify-center rounded-full border-purple-700  border-2">
+            {ProfileImg!=""?<img loading="lazy" src={ProfileImg?.includes("UserProfile")?`http://localhost:4500/${ProfileImg}`:ProfileImg} alt={ProfileImg} className="rounded-full" />:
             <div>
                 
             <User onClick={()=>setopenprofile(true)} size={18} />
@@ -98,7 +99,7 @@ export default function MusicNavbar() {
         </ul>} 
 
           {/* Mobile Menu Button */}
-          <button
+          <button name="menu"
             className="md:hidden text-gray-200"
             onClick={() => setOpen(!open)}
           >
@@ -157,8 +158,16 @@ export default function MusicNavbar() {
     </motion.nav>
     {IsUserLogin?  <div className={openprofile==false?"fixed  top-22 right-10 w-[400px] h-[400px]":"fixed  top-22 md:right-10 right-3 w-[400px] h-[400px] z-50"}>
 
+<Suspense fallback={
+  <div>
+    <h1>loading profile</h1>
+  </div>
+
+}>
+
     <ProfilePage isOpen={openprofile} setOpen={setopenprofile} onClose={()=>setopenprofile(false)} profileImg={ProfileImg} setProfileImg={setProfileImg} CurrUser={CurrUser} FetchUserLoading={FetchUserLoading}/>      
 
+</Suspense>
     </div>:null}
     </>
 

@@ -5,6 +5,8 @@ import { useDispatch } from "react-redux";
 import { SetLanguage } from "../Redux/Slices/User.slice";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {Helmet} from "react-helmet-async"
+
 const languages = [
   { name: "Hindi", nativeName: "हिन्दी, हिंदी", code: "hi", icon: "अ" },
   { name: "English", nativeName: "English", code: "en", icon: "A" },
@@ -54,7 +56,16 @@ else{
   },[SelectedLang])
 
   return (
-    <div className="w-full min-h-screen overflow-y-scroll">
+    <>
+    <Helmet>
+        <title>Language Page | My Music App</title>
+
+        <meta
+          name="description"
+          content="Listen to trending playlists and curated songs updated daily."
+        />
+      </Helmet>
+    <div className="w-full min-h-screen">
     <div className=" w-[90%] mx-auto bg-transparent mt-[70px] py-5   text-white flex flex-col items-center px-4 ">
       {/* Heading */}
     
@@ -92,6 +103,7 @@ else{
       >
         
         {UserLogin?<button
+        name="continue"
           onClick={handleSubmit}
           disabled={!selectedLanguage}
           className="px-8 py-3 rounded-xl  bg-purple-600 hover:bg-purple-700 disabled:opacity-40 transition"
@@ -105,6 +117,7 @@ else{
     </div>
     
     </div>
+    </>
 
   );
 }

@@ -52,15 +52,18 @@ useEffect(()=>{
 
   dispatch(SetUserPlaylist(singers))
 },[singers])
-  useEffect(()=>{  
-  FetchAllUserPlaylist(page)
+  useEffect(()=>{ 
+    if(page<=totalPages){
+
+      FetchAllUserPlaylist(page)
+    } 
 
   },[page])
 
 
   return (
     <>
-   {loading==false? <section className="md:w-[94%] w-[96%]">
+   <section className="md:w-[94%] min-h-[210px] mx-auto w-[96%]">
   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-100 mb-1">
     {heading}
   </h2>
@@ -89,6 +92,10 @@ useEffect(()=>{
           <img
             src={`http://localhost:4500/${singer.coverImage}`}
             alt={singer.name}
+            decoding="async"
+            width={"150"}
+            height={"150"}
+            
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -109,7 +116,7 @@ useEffect(()=>{
     }
 
     </div>
-</section>:<SingerHorizontalSkeleton/>}
+</section>
 
     </>
 

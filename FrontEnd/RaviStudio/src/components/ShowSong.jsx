@@ -6,9 +6,10 @@ import { useParams } from "react-router-dom";
 import PlaylistSkeleton from "./SkeltonLoading/ShowSong";
 import {useDispatch,useSelector} from "react-redux"
 import {toast} from "react-toastify"
+import { Helmet } from "react-helmet-async";
 import {  SetCurrSongIdx, SetFavouirtePageOpenOrNot, SetFavouriteSongArray, SetisPlaying, SetSongArray } from "../Redux/Slices/Song.slice";
 export default function PlaylistSongsPage() {
-  // const [songs,setsongs]=useState([])
+  const [songs,setsongs]=useState([])
   let [loading,setloading]=useState(false)
   let [playlistdata,setplaylistdata]=useState([])
   const [showPlaylistBox, setShowPlaylistBox] = useState(false);
@@ -17,7 +18,7 @@ const [selectedPlaylists, setSelectedPlaylists] = useState([]);
   const {playlist}=useParams()
   const dispatch=useDispatch()
   const isPlaying=useSelector(state=>state.Song.isPlaying)
-  const songs=useSelector(state=>state.Song.SongArray)
+  // const songs=useSelector(state=>state.Song.SongArray)
   const IsFavouriteSongPlay=useSelector((state) => state.Song.FavouritePageOpenOrNot)
   const UserPlaylistData=useSelector((state) => state.Song.UserPlaylist)
     
@@ -80,8 +81,8 @@ const SongData = useSelector((state) => state.Song.SongArray);
         let {data}=await axios.get(`http://localhost:4500/songs/get-all-songs`)
         if(data.success){
          
-        dispatch(SetSongArray(data.msg))
-        // setsongs(data.msg)
+        // dispatch(SetSongArray(data.msg))
+        setsongs(data.msg)
       }
     } catch (error) {
       alert("failed fetching data frontend")
@@ -163,8 +164,10 @@ GetAllFavouriteSongId()
   const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,songid)=>{
     if(IsFavouriteSongPlay){
       dispatch(SetFavouirtePageOpenOrNot(false))
-      FetchAllSongs()
+      
+      
     }
+    dispatch(SetSongArray(songs))
       setTimeout(() => {
         dispatch(SetCurrSongIdx(idx))
         dispatch(SetisPlaying(true))
@@ -207,13 +210,21 @@ GetAllFavouriteSongId()
   return (
 
     <>
+    <Helmet>
+            <title>PlaylistSong Page | My Music App</title>
+    
+            <meta
+              name="description"
+              content="Listen to trending playlists and curated songs updated daily."
+            />
+          </Helmet>
     {loading==false?<div className="min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3">
       {/* Playlist Header */}
       <div className="w-full h-[90px]">
 
       </div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row gap-6 mb-10">
-        <img src={`http://localhost:4500/${playlistdata.playlistimage}`} alt="playlist" className="w-48 h-48 rounded-2xl object-cover" />
+        <img loading="lazy" src={`http://localhost:4500/${playlistdata.playlistimage}`} alt="playlist" className="w-48 h-48 rounded-2xl object-cover" />
         <div className="flex flex-col justify-center">
           <h1 className="text-3xl font-bold">{playlistdata.name}</h1>
           <p className="text-gray-400 mt-2 max-w-xl">{playlistdata.title}</p>
@@ -223,29 +234,36 @@ GetAllFavouriteSongId()
 
       {/* Songs List */}
       <div className="space-y-3 w-full  ">
-        {songs.map((song,index) => (
+        {songs?.map((song,index) => (
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className={SongData[currsongindex]._id!=song._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
+            className={SongData[currsongindex]?._id!=song?._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}
-            <img src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
+            <img loading="lazy" src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
 
             {/* Title */}
-            <div className="flex-1">
-              {window.innerWidth>500?<h3 className="font-semibold truncate">{song.title}</h3>:<h3 className="font-semibold truncate">{String(song.title).length>15?String(song.title).slice(0,15)+"...":song.title}</h3>}
-             {window.innerWidth>500?<p className="font-semibold truncate">{song.artist}</p>:<h3 className="font-semibold truncate">{String(song.artist).length>15?String(song.artist).slice(0,15)+"...":song.artist}</h3>}
+             <div className="flex-1">
+             <h3 className="hidden sm:block truncate">{song.title}</h3>
+<h3 className="block sm:hidden truncate">
+  {song.title.slice(0, 15)}...
+</h3>
+             <h3 className="hidden sm:block truncate">{song.artist}</h3>
+<h3 className="block sm:hidden truncate">
+  {song.artist.slice(0, 15)}...
+</h3>
              </div>
 
+
             {/* Actions */}
-            <button onClick={()=>{HandleFavouriteSongAddInDB(song._id)
+            <button name="heart" onClick={()=>{HandleFavouriteSongAddInDB(song._id)
             }}>
               <Heart className={liked[song._id] ? "fill-red-500 text-red-500" : "text-white"} />
               {/* <Heart className={"text-gray-400"} /> */}
             </button>
-            <button onClick={()=>HandleSongPlay(song.title,song.artist,song.coverImage,index,songs.length,song.audioURL.master,song._id)} className="cursor-pointer"><Play /></button>
-            <button onClick={() => setOpenMenu(openMenu === song._id ? null : song._id)}>
+            <button name="songplay" onClick={()=>HandleSongPlay(song.title,song.artist,song.coverImage,index,songs.length,song.audioURL.master,song._id)} className="cursor-pointer"><Play /></button>
+            <button name="cimenukabab" onClick={() => setOpenMenu(openMenu === song._id ? null : song._id)}>
               <MoreVertical />
             </button>
 
@@ -259,6 +277,7 @@ GetAllFavouriteSongId()
                   className="absolute right-10 -top-10 bg-black border border-white/10 rounded-xl w-40 overflow-hidden z-50"
                 >
                   <button
+                  name="addplaylist"
           onClick={() => {
             setSelectedSongId(song._id);
             setShowPlaylistBox(true);
@@ -268,7 +287,7 @@ GetAllFavouriteSongId()
 >
   <Plus size={16} /> Add Playlist
 </button>
-                  <button onClick={() => handleShare(song)} className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/10"><Share2 size={16} />Share</button>
+                  <button name="share" onClick={() => handleShare(song)} className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/10"><Share2 size={16} />Share</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -328,6 +347,7 @@ GetAllFavouriteSongId()
         {/* Action buttons */}
         <div className="flex justify-end gap-3 mt-5">
           <button
+          name="cancel"
             onClick={() => {
               setShowPlaylistBox(false);
               
@@ -339,6 +359,7 @@ GetAllFavouriteSongId()
           </button>
 
           <button
+          name="addsonginfavourite"
             onClick={() => {
               console.log(selectedPlaylists)
               handleAddSongToPlaylists(

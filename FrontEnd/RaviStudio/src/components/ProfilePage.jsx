@@ -8,7 +8,7 @@ import { t } from "i18next";
 import { useDispatch } from "react-redux";
 import { SetLanguage, SetLogin } from "../Redux/Slices/User.slice";
 import { Loader2 } from "./utils/Loader";
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,setOpen,CurrUser,FetchUserLoading}) {
   
   const dispatch=useDispatch()
@@ -87,6 +87,7 @@ export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,
         >
           {/* Close Button */}
           <button
+          name="close"
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-300 hover:text-white transition"
           >
@@ -127,12 +128,16 @@ export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,
 
           {/* Actions */}
           <div className="mt-6 flex flex-col gap-3">
-            <button className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 py-2.5 rounded-xl font-semibold text-white transition">
+            <Link onClick={()=>{
+              setOpen(false)
+            }} to={`/updateuser/${CurrUser._id}`}>
+            <button  name="update profile" className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 py-2.5 rounded-xl font-semibold text-white transition">
               <User size={16} />
               Update Profile
-            </button>
+            </button></Link>
 
-            <button
+            <button 
+            name="logout"
               onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-xl font-semibold transition"
             >
