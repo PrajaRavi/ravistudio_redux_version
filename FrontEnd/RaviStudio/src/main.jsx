@@ -7,10 +7,9 @@ import SmoothScrollProvider from './components/SmoothScroll.jsx';
 import {Provider} from "react-redux"
 import { store } from './Redux/Stores/MyStore.js';
 import { HelmetProvider } from "react-helmet-async"
-// import { AppContextProvider } from './Component/ContextAPI.jsx';
-
+import "../src/services/I18Next.js"
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <HelmetProvider>
 
 <Provider store={store}>
@@ -32,5 +31,5 @@ theme="dark"
 />
     </HelmetProvider>
 
-  </StrictMode>,
+  // </StrictMode>,
 )

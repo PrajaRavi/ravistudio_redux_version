@@ -12,7 +12,9 @@ import Private from './components/layout/Private'
 import BottomMusicPlayer from "./components/MusicPlayer"
 //<-----------------Now due to this memo function these page will not loaded every time ----------------------> 
 import MusicNavbar from './components/Navbar';
-
+import ReviewPopup from './components/utils/ReviewPopUp';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 const Navbar = React.memo(MusicNavbar);
 const MusicPlayer = React.memo(BottomMusicPlayer);
 
@@ -33,6 +35,11 @@ function App() {
 const dispatch=useDispatch()
 const FetchUserLoading=useSelector(state=>state.User.GetUserLoading)
 const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
+let [OpenReviewPopUp,setOpenReviewPopUp]=useState(false)
+const {i18n} =useTranslation()
+const SelectedLang=useSelector(state=>state.User.language)
+  
+
 const UserUpdatedProfile=useSelector(state=>state.Song.userupdated) //this is just for telling that their is an updation in user profile so fetch user again
 
 async function RefreshToken(){
@@ -44,10 +51,12 @@ async function RefreshToken(){
           
             
              
-        
-
+  
   useEffect(()=>{
-   
+    
+    setTimeout(() => {
+      setOpenReviewPopUp(true)
+    }, 40*60*1000);
     if(localStorage.getItem("CurrUser")){
       
       dispatch(SetLogin(true))  
@@ -60,13 +69,28 @@ return ()=>(
   clearInterval(interval)
 )
 
+},[])
 
-  },[])
+  
+useEffect(()=>{  
+  
+  i18n.changeLanguage(SelectedLang?.code)
+   if(document.body.dir=i18n.dir()=='ltr'){
+      document.body.dir=i18n.dir()
+      // setltr(true)
+    }
+    else{
+      document.body.dir=i18n.dir()
+      // setltr(false)
+    }
+  },[SelectedLang])
+    
+
   
   useEffect(()=>{
     dispatch(GetUser())
-    
-   },[IsUserLogin,UserUpdatedProfile])
+  
+    },[IsUserLogin,UserUpdatedProfile])
   return (
     <>
     <RiverThemeUnderwater>
@@ -99,7 +123,9 @@ return ()=>(
 <MusicPlayer/>
 </BrowserRouter>
     </RiverThemeUnderwater>
-
+{OpenReviewPopUp?<ReviewPopup onClose={()=>{
+  setOpenReviewPopUp(false)
+}} isOpen={OpenReviewPopUp}/>:null}
     </>
   )
 }

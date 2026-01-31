@@ -6,12 +6,13 @@ import { SetLanguage } from "../Redux/Slices/User.slice";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {Helmet} from "react-helmet-async"
+import { useTranslation } from "react-i18next";
 
 const languages = [
   { name: "Hindi", nativeName: "हिन्दी, हिंदी", code: "hi", icon: "अ" },
   { name: "English", nativeName: "English", code: "en", icon: "A" },
   { name: "Bengali", nativeName: "বাংলা", code: "bn", icon: "অ" },
-  { name: "Marathi", nativeName: "मराठी", code: "mr", icon: "अ" },
+  { name: "Marathi", nativeName: "मराठी", code: "Mr", icon: "अ" },
   { name: "Telugu", nativeName: "తెలుగు", code: "te", icon: "అ" },
   { name: "Gujarati", nativeName: "ગુજરાતી", code: "gu", icon: "અ" },
   { name: "Urdu", nativeName: "اردو", code: "ur", icon: "ا" },
@@ -33,7 +34,7 @@ const languages = [
 export default function LanguageSelectionPage() {
   const SelectedLang=useSelector(state=>state.User.language)
   const UserLogin=useSelector(state=>state.User.IsUserLogin)
-
+  const {t,i18n}=useTranslation()
   const [selectedLanguage, setSelectedLanguage] = useState(SelectedLang);
   const dispatch=useDispatch()
   
@@ -42,8 +43,9 @@ export default function LanguageSelectionPage() {
     console.log("Selected Language:", selectedLanguage);
     let {data}=await axios.post(`http://localhost:4500/update-user-language/`,{language:selectedLanguage.code})
 if(data.success){
-
   toast.success("your language is "+String(selectedLanguage.name))
+  i18n.changeLanguage(selectedLanguage.code)
+
 }
 else{
   toast.warning("something went wrong")
@@ -52,7 +54,7 @@ else{
   };
   useEffect(()=>{
     setSelectedLanguage(SelectedLang)
-// alert(SelectedLang.code)
+    // alert(SelectedLang.code)
   },[SelectedLang])
 
   return (
@@ -65,7 +67,7 @@ else{
           content="Listen to trending playlists and curated songs updated daily."
         />
       </Helmet>
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen overflow-y-scroll">
     <div className=" w-[90%] mx-auto bg-transparent mt-[70px] py-5   text-white flex flex-col items-center px-4 ">
       {/* Heading */}
     
@@ -108,7 +110,7 @@ else{
           disabled={!selectedLanguage}
           className="px-8 py-3 rounded-xl  bg-purple-600 hover:bg-purple-700 disabled:opacity-40 transition"
         >
-          Continue
+          {t('submit')}
         </button>:null}
       </motion.div>
     </div>

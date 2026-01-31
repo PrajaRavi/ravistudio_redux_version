@@ -69,6 +69,9 @@ Throttle->it is useful when we want to call a function after a fix interval of t
 Debouncing->for ex->on scroll function if i execute my function A onscroll then it it is normal and if i call it after 2s or a fix interval of time using setinterval then it is throttle but if some how i call it after scrollend then it is debouncing
 
 <---------------------------google LightHouse------------------------------>
+->Their is a big problem in react(we know that in any component whenever any state changes then re-render occurs so it will also render it's child component although we are not using that state in the child component )
+
+->React.memo->is a HOC->Higher order component just like higher order function (HOF)->which takes function inside it as params so HOC->component which takes a new component as params inside it
 
 
 

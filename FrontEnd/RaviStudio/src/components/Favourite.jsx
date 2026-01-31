@@ -71,14 +71,14 @@ GetAllSongs()
   return (
     <>
     <Helmet>
-            <title>Admin Page | My Music App</title>
+            <title>Favourite Page | My Music App</title>
     
             <meta
               name="description"
               content="Listen to trending playlists and curated songs updated daily."
             />
           </Helmet>
-    <div className='min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
+    <div className='min-h-screen md:w-[70%] w-[96%] overflow-y-scroll z-20 bg-transparent text-white px-3'>
       <div className='w-full h-[80px]'>
         
 

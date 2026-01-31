@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Phone, MessageSquare, Send } from "lucide-react";
 import {Helmet} from "react-helmet-async"
+import {toast} from "react-toastify"
+import axios from "axios"
+import { useTranslation } from "react-i18next";
 export default function ContactUs() {
   const [formData, setFormData] = useState({
     name: "",
@@ -13,25 +16,21 @@ export default function ContactUs() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+const {t}=useTranslation()
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Replace with your backend API endpoint
     try {
-      await fetch("https://your-backend-api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+     let {data}= await  axios.post("http://localhost:4500/contact/post-contact-detail",formData);
+     if(data.success){
+      toast.success("submited successfully😊😊")
+       setFormData({ name: "", email: "", contact: "", message: "" });
+      }
 
-      alert("Message sent successfully 🚀");
-      setFormData({ name: "", email: "", contact: "", message: "" });
     } catch (error) {
       console.error(error);
-      alert("Something went wrong ❌");
+      toast.success("Something went wrong ❌");
     }
   };
 
@@ -54,7 +53,7 @@ export default function ContactUs() {
       >
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-8">
-          Contact Us
+          {t("feelfreetocontact")}
         </h2>
 
         {/* Form */}
@@ -68,7 +67,7 @@ export default function ContactUs() {
               required
               value={formData.name}
               onChange={handleChange}
-              placeholder="Your Name"
+              placeholder={t("Name is required")}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
           </div>
@@ -82,7 +81,7 @@ export default function ContactUs() {
               required
               value={formData.email}
               onChange={handleChange}
-              placeholder="Email Address"
+              placeholder={t("emailreq")}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
           </div>
@@ -95,7 +94,7 @@ export default function ContactUs() {
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              placeholder="Contact Number"
+              placeholder={t("contact")}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
           </div>
@@ -112,7 +111,7 @@ export default function ContactUs() {
               required
               value={formData.message}
               onChange={handleChange}
-              placeholder="Your Message"
+              placeholder={t("entermessage")}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
           </div>
@@ -126,7 +125,7 @@ export default function ContactUs() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
                        bg-purple-600 hover:bg-purple-700 text-white font-semibold"
           >
-            <Send size={18} /> Submit
+            <Send size={18} /> {t('submit')}
           </motion.button>
         </form>
       </motion.div>

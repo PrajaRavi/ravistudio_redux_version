@@ -62,7 +62,7 @@ useEffect(()=>{
 
   return (
     <>
-    <section  className="md:w-[94%] mx-auto w-[96%] min-h-[210px]">
+    <section  className="md:w-[94%] mx-auto w-[96%] md:min-h-[190px] lg:min-h-[210px]">
   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-100 mb-1">
     {heading}
   </h2>

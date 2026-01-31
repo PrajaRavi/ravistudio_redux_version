@@ -24,6 +24,8 @@ import cookieParser from "cookie-parser";
 import { SongModel } from "./Models/song.model.js";
 import { UserPlaylistModel } from "./Models/User.playlist.model.js";
 import sharp from "sharp";
+import { ContactRouter } from "./Routes/contact.route.js";
+import { ReviewRouter } from "./Routes/Review.route.js";
 
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
@@ -56,6 +58,8 @@ app.use(express.static("./Images/UserPlaylistImg"));
 app.use("/user", UserRouter);
 app.use("/playlist", PlaylistRouter);
 app.use("/songs", SongRouter);
+app.use("/contact", ContactRouter);
+app.use("/review", ReviewRouter);
 
 // Serve HLS output files statically (NEW)
 app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));

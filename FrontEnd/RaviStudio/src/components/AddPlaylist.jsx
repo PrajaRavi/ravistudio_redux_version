@@ -74,7 +74,7 @@ export default function AddPlaylist() {
       </Helmet>
 
     
-    <div className="min-h-screen md:w-[90%] w-full  items-center justify-center  px-4">
+    <div className="min-h-screen md:w-[90%] overflow-y-scroll w-full  items-center justify-center  px-4">
       <div className="w-full h-[80px]">
 
       </div>

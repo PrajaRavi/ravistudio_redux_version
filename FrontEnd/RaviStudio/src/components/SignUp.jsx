@@ -41,12 +41,12 @@ const SignUp = () => {
 
   // 3. Simplified Validation Logic
   const validate = () => {
-    if (!formData.firstName || formData.firstName.length < 4) return '*firstName must have at least 4 char';
-    if (!formData.lastName || formData.lastName.length < 4) return '*lastName must have at least 4 char';
-    if (!formData.email.includes('@') || !formData.email.includes('gmail.com')) return '*Provide a valid Gmail';
-    if (formData.password.length < 5) return '*Password must have at least 5 char';
-    if (formData.contact.length !== 10) return '*Provide a valid 10-digit contact';
-    if (!formData.dob) return '*dob is required';
+    if (!formData.firstName || formData.firstName.length < 4) return t('firstnameshort');
+    if (!formData.lastName || formData.lastName.length < 4) return t("lastnameshort");
+    if (!formData.email.includes('@') || !formData.email.includes('gmail.com')) return t("plzzentervalidemail");
+    if (formData.password.length < 5) return t("passhort");
+    if (formData.contact.length !== 10) return t("contreq");
+    if (!formData.dob) return t("dobreq");
     return null;
   };
 
@@ -102,23 +102,23 @@ const SignUp = () => {
           content="Listen to trending playlists and curated songs updated daily."
         />
       </Helmet>
-    <div className="h-[500px] z-20 flex items-center justify-center  p-4">
+    <div className="h-[500px] z-20 flex    items-center justify-center  p-4">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-gray-200"
+        className="w-full  p-8 rounded-2xl shadow-xl bg-white/10 backdrop-blur-md  border-gray-200"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Sign Up
         </h2>
 
-        <form  onSubmit={handleSubmit} className="space-y-4">
+        <form  onSubmit={handleSubmit} className="space-y-4 ">
           {/* First & Last Name */}
           <div className="flex gap-4">
             <InputField
               icon={<User size={18} />}
-              placeholder="First Name"
+              placeholder={t('firstnamerror')}
               name="firstName"
               
               // value={formData.firstName}
@@ -126,7 +126,7 @@ const SignUp = () => {
             />
             <InputField
               icon={<User size={18} />}
-              placeholder="Last Name"
+              placeholder={t("lastnamerror")}
               name="lastName"
               // value={formData.lastName}
               onChange={handleChange}
@@ -136,7 +136,7 @@ const SignUp = () => {
           {/* Email */}
           <InputField
             icon={<Mail size={18} />}
-            placeholder="Email"
+            placeholder={t("emailreq")}
             name="email"
             // value={formData.email}
             onChange={handleChange}
@@ -146,7 +146,7 @@ const SignUp = () => {
           {/* Password */}
           <InputField
             icon={<Lock size={18} />}
-            placeholder="Password"
+            placeholder={t("passreq")}
             name="password"
             // value={formData.password}
             onChange={handleChange}
@@ -156,7 +156,7 @@ const SignUp = () => {
           {/* Phone */}
           <InputField
             icon={<Phone size={18} />}
-            placeholder="Phone Number"
+            placeholder={t("contreq")}
             name="contact"
             // value={formData.phone}
             onChange={handleChange}
@@ -189,7 +189,7 @@ const SignUp = () => {
       {SignUpFormLoading ? (
         <span className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
       ) : (
-        "Sign Up"
+        t('signup')
       )}
     </motion.button>
           <span className='text-black font-bold'>{errmsg}</span>

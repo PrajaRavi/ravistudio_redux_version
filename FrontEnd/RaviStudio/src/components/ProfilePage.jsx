@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { SetLanguage, SetLogin } from "../Redux/Slices/User.slice";
 import { Loader2 } from "./utils/Loader";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import { SetisPlaying } from "../Redux/Slices/Song.slice";
 export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,setOpen,CurrUser,FetchUserLoading}) {
   
   const dispatch=useDispatch()
@@ -60,6 +61,7 @@ export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,
       dispatch(SetLogin(false))
       navigate("/")
       setOpen(false)
+      dispatch(SetisPlaying(false))
     }
     else{
       toast.error("can't logout")

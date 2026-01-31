@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {Helmet} from "react-helmet-async"
+import axios from "axios"
 import {
   Users,
   MessageCircle,
@@ -20,27 +21,78 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteType, setDeleteType] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const CurrUser=useSelector(state=>state.User.CurrUser)
+  let [apicalled,setapicalled]=useState(false)  
+
+  //----------------------> managing users
+  let [users,setusers]=useState([])
+  let [pageforuser,setpageforuser]=useState(1)
+
+  //----------------------> managing contacts
+  let [contacts,setcontacts]=useState([])
+  let [pagefocontact,setpagefocontact]=useState(1)
+
+  //----------------------> managing reviews
+  let [reviews,setreviews]=useState([])
+  let [pagefoReview,setpagefoReview]=useState(1)
+
+
+  // --------------------------->managing users
+  const GetAllUser=async(page,limit=9)=>{
+    let {data}=await axios.get(`http://localhost:4500/user/get-all-user/?page=${page}&limit=${limit}`)
+    if(data.success){
+      setusers(data.users)
+    }else{
+      toast.error("something went wrong in admin panal")
+    }
+  }
+ const DeleteUser=async()=>{
+    let {data}=await axios.get(`http://localhost:4500/user/get-all-user/?page=${page}&limit=${limit}`)
+    if(data.success){
+      setusers(data.users)
+    }else{
+      toast.error("something went wrong in admin panal")
+    }
+ } 
+
+  const GetAllContacts=async(page,limit=9)=>{
+    let {data}=await axios.get(`http://localhost:4500/contact/get-contact-detail/?page=${page}&limit=${limit}`)
+    if(data.success){
+      setcontacts(data.contact)
+    }else{
+      toast.error("something went wrong in admin panal")
+    }
+  }
+  
+  const GetAllReviews=async(page,limit=9)=>{
+    let {data}=await axios.get(`http://localhost:4500/review/get-all-review/?page=${page}&limit=${limit}`)
+    if(data.success){
+      setreviews(data.review)
+    }else{
+      toast.error("something went wrong in admin panal")
+    }
+  }
+  
+
 
   // Demo Data
-  const users = [
-    { id: "u1", name: "Aman", email: "aman@mail.com" },
-    { id: "u2", name: "Ravi", email: "ravi@mail.com" },
-  ];
+  // const users = [
+  //   { id: "u1", name: "Aman", email: "aman@mail.com" },
+  //   { id: "u2", name: "Ravi", email: "ravi@mail.com" },
+  // ];
 
-  const contacts = [
-    { id: "c1", name: "John", email: "john@mail.com", message: "Need help with playlist" },
-  ];
+  // const contacts = [
+  //   { id: "c1", name: "John", email: "john@mail.com", message: "Need help with playlist" },
+  // ];
 
-  const reviews = [
-    { id: "r1", text: "Amazing music app!" },
-    { id: "r2", text: "UI is very smooth 🔥" },
-  ];
 
   const chartData = [
     { name: "Jan", users: 20, contacts: 5, reviews: 10 },
@@ -56,10 +108,46 @@ export default function AdminDashboard() {
     setConfirmOpen(true);
   };
 
-  const handleDelete = () => {
-    console.log("Deleting", deleteType, deleteId);
+  const handleDelete = async () => {
+    if(String(deleteType).includes("contact")){
+      let {data}=await axios.delete(`http://localhost:4500/contact/delete-contact-detail/${deleteId}`)
+    if(data.success){
     setConfirmOpen(false);
+    setapicalled(!apicalled)
+  }else{
+  toast.error("something went wrong in admin panal")
+}
+}
+else if(String(deleteType).includes("review")){
+      
+      let {data}=await axios.delete(`http://localhost:4500/review/delete-review/${deleteId}`)
+    if(data.success){
+    setConfirmOpen(false);
+    setapicalled(!apicalled)
+  }else{
+  toast.error("something went wrong in admin panal")
+}
+
+    }
+    else if(String(deleteType).includes("user")){
+      
+      if(deleteId===CurrUser._id){
+        toast.warn("you can't delete yourself")
+        setapicalled(!apicalled)
+        setConfirmOpen(false)
+
+      }
+      else{
+        toast.warn("implement karna hai")
+      }
+    }
+
   };
+  useEffect(()=>{  
+    GetAllUser(pageforuser)
+    GetAllContacts(pagefocontact)
+    GetAllReviews(pagefoReview)
+  },[apicalled])
 
   return (
     <>
@@ -71,7 +159,7 @@ export default function AdminDashboard() {
               content="Listen to trending playlists and curated songs updated daily."
             />
           </Helmet>
-    <div className="min-h-screen w-full bg-black text-white flex flex-col md:flex-row">
+    <div className="min-h-screen z-50 w-full bg-black text-white flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="md:w-64 w-full md:min-h-screen bg-white/5 backdrop-blur-xl border-r border-white/10">
         <div className="p-6 text-xl font-bold">Admin Panel</div>
@@ -92,9 +180,9 @@ export default function AdminDashboard() {
             <motion.div key="analytics" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full">
               <h2 className="text-2xl font-semibold mb-6">Dashboard Analytics</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-full">
-                <StatCard title="Total Users" value={users.length} />
-                <StatCard title="Total Contacts" value={contacts.length} />
-                <StatCard title="Total Reviews" value={reviews.length} />
+                <StatCard title="Total Users" value={users?.length} />
+                <StatCard title="Total Contacts" value={contacts?.length} />
+                <StatCard title="Total Reviews" value={reviews?.length} />
                 <StatCard title="Growth" value="+12%" />
               </div>
 
@@ -133,7 +221,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-semibold mb-4">Users</h2>
               <Table>
                 <thead><tr><Th>Sr</Th><Th>Name</Th><Th>Email</Th><Th>ID</Th><Th>Action</Th></tr></thead>
-                <tbody>{users.map((u,i)=>(<tr key={u.id}><Td>{i+1}</Td><Td>{u.name}</Td><Td>{u.email}</Td><Td>{u.id}</Td><Td className="flex gap-2"><IconButton icon={<Edit size={16}/>} /><IconButton icon={<Trash2 size={16}/>} danger onClick={()=>openDeleteModal("user",u.id)} /></Td></tr>))}</tbody>
+                <tbody>{users?.map((u,i)=>(<tr key={u._id}><Td>{i+1}</Td><Td>{`${u.firstName} ${u.lastName}`}</Td><Td>{u.email}</Td><Td>{u._id}</Td><Td className="flex gap-2"><IconButton icon={<Edit size={16}/>} /><IconButton icon={<Trash2 size={16}/>} danger onClick={()=>openDeleteModal("user",u._id)} /></Td></tr>))}</tbody>
               </Table>
             </motion.div>
           )}
@@ -144,7 +232,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-semibold mb-4">Contacts</h2>
               <Table>
                 <thead><tr><Th>Sr</Th><Th>ID</Th><Th>Name</Th><Th>Email</Th><Th>Message</Th><Th>Action</Th></tr></thead>
-                <tbody>{contacts.map((c,i)=>(<tr key={c.id}><Td>{i+1}</Td><Td>{c.id}</Td><Td>{c.name}</Td><Td>{c.email}</Td><Td className="max-w-xs truncate">{c.message}</Td><Td><IconButton icon={<Trash2 size={16}/>} danger onClick={()=>openDeleteModal("contact",c.id)}/></Td></tr>))}</tbody>
+                <tbody>{contacts?.map((c,i)=>(<tr key={c._id}><Td>{i+1}</Td><Td>{c._id}</Td><Td>{c.name}</Td><Td>{c.email}</Td><Td className="max-w-xs truncate">{c.message}</Td><Td><IconButton icon={<Trash2 size={16} />}  danger onClick={()=>openDeleteModal("contact",c._id)}/></Td></tr>))}</tbody>
               </Table>
             </motion.div>
           )}
@@ -154,7 +242,7 @@ export default function AdminDashboard() {
             <motion.div key="reviews" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <h2 className="text-2xl font-semibold mb-6">Reviews</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {reviews.map(r=>(<motion.div key={r.id} whileHover={{scale:1.03}} className="relative bg-white/5 border border-white/10 rounded-xl p-4"><button onClick={()=>openDeleteModal("review",r.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><X size={16}/></button><p className="text-gray-200">{r.text}</p></motion.div>))}
+                {reviews?.map(r=>(<motion.div key={r._id} whileHover={{scale:1.03}} className="relative bg-white/5 border border-white/10 rounded-xl p-4"><button onClick={()=>openDeleteModal("review",r._id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><X size={16}/></button><p className="text-gray-200">{r.message}</p></motion.div>))}
               </div>
             </motion.div>
           )}

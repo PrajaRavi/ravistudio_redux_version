@@ -3,6 +3,8 @@ import { Music, Search, User, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import {Link} from "react-router-dom"
+import { useTranslation } from "react-i18next";
+
 // import ProfilePage from "./ProfilePage";
 const ProfilePage=lazy(()=>import("./ProfilePage"))
 export default function MusicNavbar() {
@@ -10,6 +12,7 @@ export default function MusicNavbar() {
   const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
   const IsAdmin=useSelector(state=>state.User.IsAdmin)
   const CurrUser=useSelector(state=>state.User.CurrUser)
+  const {t} =useTranslation()
   const FetchUserLoading=useSelector(state=>state.User.GetUserLoading)
   let [openprofile,setopenprofile]=useState(false)
   let [ProfileImg,setProfileImg]=useState("http://localhost:4500")
@@ -68,12 +71,12 @@ export default function MusicNavbar() {
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex gap-8 text-sm text-gray-400">
-          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/"}>Home</Link></li>
-          <li className="hover:text-gray-100 cursor-pointer"><Link to={'/contact'}>Contact</Link></li>
+          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/"}>{t('home')}</Link></li>
+          <li className="hover:text-gray-100 cursor-pointer"><Link to={'/contact'}>{t('contact')}</Link></li>
           {IsAdmin && IsUserLogin ?<li className="hover:text-gray-100 cursor-pointer"><Link to={'/admin'}>Admin</Link></li>:null}
-          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/addplaylist"}>AddPlaylist</Link></li>:null}
-          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/favourite"}>Favourite</Link></li>:null}
-          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/lang"}>Language</Link></li>
+          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/addplaylist"}>{"AddPlaylist"}</Link></li>:null}
+          {IsUserLogin?<li className="hover:text-gray-100 cursor-pointer"><Link to={"/favourite"}>{t('Favourite')}</Link></li>:null}
+          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/lang"}>{t("language")}</Link></li>
         </ul>
 
         {/* Actions */}
@@ -89,13 +92,12 @@ export default function MusicNavbar() {
             <User onClick={()=>setopenprofile(true)} size={18} />
             </div>
             }
-            {/* {CurrUser?<img src={CurrUser.profileImage} alt="User" className="rounded-full" />:<User size={18} />} */}
           </button>
           </div>
           :
  <ul className="hidden md:flex gap-8 text-sm text-gray-400">
-          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/signup"}>SignUp</Link></li>
-          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/signin"}>SignIn</Link></li>
+          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/signup"}>{t('signup')}</Link></li>
+          <li className="hover:text-gray-100 cursor-pointer"><Link to={"/signin"}>{t('login')}</Link></li>
         </ul>} 
 
           {/* Mobile Menu Button */}

@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {Lock, Mail} from "lucide-react"
 import { SetLogin } from "../Redux/Slices/User.slice";
 import {Helmet} from "react-helmet-async"
-
+import { useTranslation } from "react-i18next";
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const dispatch=useDispatch()
   const signindata=useSelector(state=>state.User.signindata)
+  
   const signinerror=useSelector(state=>state.User.error)
   const [formData, setFormData] = useState({
       email: '',
@@ -59,7 +59,7 @@ const [success, setSuccess] = useState("");
       setSuccess(data.msg || "Login successful");
       dispatch(SetLogin(true))
       // OPTIONAL: store email or user info (not token)
-      toast.success(data.msg)
+      toast.success(t('loginsuccessfully'))
       localStorage.setItem("CurrUser", data.email);
       navigate("/");
   
@@ -70,7 +70,7 @@ const [success, setSuccess] = useState("");
     }
   } catch (err) {
     if (err.response && err.response.data) {
-      setError(err.response.data.msg || "Invalid credentials");
+      setError(t("invalidcredential"));
     } else {
       setError("Server error. Please try again later.");
     }
@@ -101,44 +101,12 @@ const [success, setSuccess] = useState("");
   if (loading) return;
   if (!signindata) return;
 
-  // switch (signinerror) {
-   
-  //   case "User Not found":
-  //     toast.info(t("plzcreteanaccount"));
-  //     navigate("/SignUp");
-  //     dispatch(Setsignindata(null))
-
-  //     break;
-  //   case "Please verify your account first":
-  //     toast.info(t("varify your account"));
-  //     navigate("/SignUp");
-  //     dispatch(Setsignindata(null))
-
-  //     break;
-
-  //   case "Invalid credentials":
-  //     toast.warning(t("invalidcredential"));
-  //     dispatch(Setsignindata(null))
-
-  //     break;
-
-  //   case "Please verify your account first":
-  //     toast.error(t("Please verify your account first"));
-  //     dispatch(Setsignindata(null))
-
-  //     break;
-
-  //   default:
-  //     toast.error(t("somethingwentwrong"));
-  //     dispatch(Setsignindata(null))
-
-  // }
-}, [loading, signindata]);
+  }, [loading, signindata]);
 
   return (
     <>
     <Helmet>
-        <title>SignUp Page | My Music App</title>
+        <title>SignIn Page | My Music App</title>
 
         <meta
           name="description"
@@ -153,7 +121,7 @@ const [success, setSuccess] = useState("");
         className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-gray-200"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Sign In
+          {t('login')}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -186,7 +154,7 @@ const [success, setSuccess] = useState("");
     whileTap={{ scale: 0.95 }}
     className="text-sm text-black font-bold hover:underline"
     >
-      Forgot password?
+      {t("forgotpass")}
     </motion.button>
   </div>
   <span className="font-bold text-black">{error}</span>
@@ -204,7 +172,7 @@ const [success, setSuccess] = useState("");
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  "Sign In"
+                  t("login")
                 )}
               </motion.button>
         </form>

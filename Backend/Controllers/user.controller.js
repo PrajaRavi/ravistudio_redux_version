@@ -276,6 +276,7 @@ export const getLoggedInUser = async (req, res, next) => {
       data: user,
     });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
@@ -461,6 +462,7 @@ export const GetFavouriteSongId=async(req,res,next)=>{
   }
   
 }
+
 export const UpdateUser=async(req,resp)=>{
   try {
     let {firstName,lastName,contact,email}=req.body;
@@ -475,3 +477,21 @@ export const UpdateUser=async(req,resp)=>{
     
   }
 }
+
+export const GetAllUser=async(req,resp)=>{
+  let page=req.query.page||1;
+  let limit=req.query.limit||9;
+  try {
+    let data=await UserModel.find()
+    .skip(page-1)
+    .limit(limit)
+    .lean();
+    if(data) return resp.status(200).json({success:true,msg:"successfully fetched",users:data})
+  } catch (error) {
+    console.log(error)
+    return resp.status(500).json({success:false,msg:"error in collecting all user"})
+    
+  }
+}
+
+

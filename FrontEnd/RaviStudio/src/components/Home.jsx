@@ -3,6 +3,8 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import SingerHorizontalSkeleton from './SkeltonLoading/SingerSection'
 import { useInView } from "react-intersection-observer";
 import {Helmet} from "react-helmet-async"
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 
 // applying lazy loading(component base code splitting)
@@ -29,15 +31,8 @@ function LazySection({ children }) {
 }
 
 function Home() {
-//   const { ref, inView } = useInView({
-//   triggerOnce: true,
-//   threshold: 0.1,
-  
-// });
-
-// useEffect(()=>{
-// console.log(inView)
-// },[inView])
+  const {i18n,t} =useTranslation()
+const SelectedLang=useSelector(state=>state.User.language)
 
   return (
     <>
@@ -55,15 +50,15 @@ function Home() {
 
 {/* component based code splitting */}
   <Suspense fallback={<LazyComponentLoading />}>
-    <SingerHorizontalScroll heading="Popular Singer" />
-    <PlaylistSection heading="New Released Song" />
-    <PlaylistSection heading="Feature Playlist" />
-    <PlaylistSection heading="Feature Playlist" />
+    <SingerHorizontalScroll heading={t("artist")} />
+    <PlaylistSection heading={t("newreleasedsong")} />
+    <PlaylistSection heading={t("popularplaylist")} />
+    <PlaylistSection heading={t("popularplaylist")} />
       </Suspense>
 
 <LazySection>
   <Suspense fallback={<LazyComponentLoading />}>
-      <UserPlaylistSection heading="My Playlist" />
+      <UserPlaylistSection heading={t("myplaylist")} />
     </Suspense>
 </LazySection>
 <LazySection>

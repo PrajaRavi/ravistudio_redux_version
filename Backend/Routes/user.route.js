@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addToFavourites,
+  GetAllUser,
   GetFavouriteSongId,
   getLoggedInUser,
   login,
@@ -24,3 +25,4 @@ UserRouter.post("/resend-otp", resendOtp);
 UserRouter.post("/add-favourite-song", protect, addToFavourites);
 UserRouter.get("/get-favourite-songId", protect, GetFavouriteSongId);
 UserRouter.post("/updateuser", protect, UpdateUser);
+UserRouter.get("/get-all-user", protect, GetAllUser);

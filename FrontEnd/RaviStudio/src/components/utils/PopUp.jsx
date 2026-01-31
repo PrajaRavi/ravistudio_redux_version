@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, X } from "lucide-react";
 import { useSelector } from "react-redux";
 
-export default function DeleteSongPopup({ open, onClose, onConfirm }) {
+export default function DeleteSongPopup({ open, onClose, onConfirm ,title,description}) {
   const OpenDeletePlaylistPopUp=useSelector((state) => state.Song.OpenDeletePlaylistPopUp)
   
   return (
@@ -47,10 +47,11 @@ export default function DeleteSongPopup({ open, onClose, onConfirm }) {
 
             {/* Text */}
             <h2 className="text-center text-xl font-semibold text-white">
-             {OpenDeletePlaylistPopUp?"Delete this playlist":" Delete this song?"}
-            </h2>
+              {title}
+              </h2>
             <p className="mt-2 text-center text-sm text-gray-300">
-              {OpenDeletePlaylistPopUp?"This action cannot be undone. The playlist will be permanently removed from your library.":"This action cannot be undone. The song will be permanently removed from your library."}
+              {description}
+              
             </p>
 
             {/* Buttons */}

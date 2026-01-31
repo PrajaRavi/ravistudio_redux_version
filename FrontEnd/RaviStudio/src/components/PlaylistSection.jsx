@@ -63,7 +63,7 @@ console.log(isAtEnd)
   return (
     // i remoed skelton loading from here because when i scroll to end then due to this loading effect the scrollbar move to start point
     <>
-   <section className="md:w-[94%] min-h-[210px] mx-auto w-[96%]">
+   <section className="md:w-[94%] md:min-h-[190px] lg:min-h-[210px] mx-auto w-[96%]">
   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-100 mb-1">
     {heading}
   </h2>

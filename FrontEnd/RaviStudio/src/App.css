@@ -1,6 +1,8 @@
 @import "tailwindcss";
 /* global.css */
-
+::-webkit-scrollbar{
+  visibility: hidden;
+}
 
 html {
   scroll-behavior: smooth;

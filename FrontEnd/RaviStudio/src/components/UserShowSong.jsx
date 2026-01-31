@@ -93,7 +93,7 @@ GetAllSongs()
               content="Listen to trending playlists and curated songs updated daily."
             />
           </Helmet>
-    {loading==false?<div className='min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
+    {loading==false?<div className='min-h-screen overflow-y-scroll md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3'>
       <div className='w-full h-[80px]'>
         
 
@@ -159,8 +159,10 @@ GetAllSongs()
       
       
     </div>:<PlaylistSkeleton/>}
-     {<DeleteSongPopup
+     {<DeleteSongPopup 
+     title={OpenDeletePlaylistPopUp?"Delete this playlist":" Delete this song?"}
   open={open}
+  description={OpenDeletePlaylistPopUp?"This action cannot be undone. The playlist will be permanently removed from your library.":"This action cannot be undone. The song will be permanently removed from your library."}
   onClose={() => setOpen(false)}
   onConfirm={async ()=>{
     try {

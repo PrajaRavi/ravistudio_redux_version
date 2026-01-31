@@ -218,7 +218,7 @@ GetAllFavouriteSongId()
               content="Listen to trending playlists and curated songs updated daily."
             />
           </Helmet>
-    {loading==false?<div className="min-h-screen md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3">
+    {loading==false?<div className="min-h-screen overflow-y-scroll md:w-[70%] w-[96%] z-20 bg-transparent text-white px-3">
       {/* Playlist Header */}
       <div className="w-full h-[90px]">
 

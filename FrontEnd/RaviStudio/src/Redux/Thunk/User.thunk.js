@@ -29,8 +29,8 @@ export const GetUser = createAsyncThunk(
       let { data } = await api.get(`user/me`);
       console.log(data.data);
       dispatch(SetIsAdmin(data.data.isAdmin))
-      
       dispatch(SetLanguage({code:data.data.language}))
+      
       return data.data;
     } catch (error) {
       return error.response.data.message
