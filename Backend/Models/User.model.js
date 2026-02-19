@@ -29,6 +29,10 @@ contact:{
 
     password: { type: String, required: true },
     verifyOtp: { type: String},
+    Lastsongplayed:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Song"
+    },
 
     profileImage: { type: String, default: "" },
 

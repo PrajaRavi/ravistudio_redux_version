@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { transporter } from "../utilities/transporter.utility.js";
 import { async_Handler } from "../utilities/async_Handler.utility.js";
 import { err_Handler } from "../utilities/err_Handler.utility.js";
+import {SongModel} from "../Models/song.model.js"
 import { UserModel } from "../Models/User.model.js";
 export const SignUp = async_Handler(async (req, res, next) => {
   const { firstName, lastName, dob, email, password, contact } = req.body;
@@ -192,6 +193,76 @@ export const login = async (req, res, next) => {
         email: user.email,
       });
   } catch (error) {
+    console.log(error)
+    return res.send({ success: false, msg: error });
+  }
+};
+
+export const loginforapp = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        msg: "Email and password required",
+      });
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        msg: "User Not found",
+      });
+    }
+    // if(user.DOB)
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        msg: "Invalid credentials",
+      });
+    }
+
+    if (!user.isAccountVerified) {
+      return res.status(403).json({
+        success: false,
+        msg: "Please verify your account first",
+      });
+    }
+
+    // 🔑 Short-lived access token
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_ACCESS_SECRET_KEY,
+      {
+        expiresIn: "15m",
+      },
+    );
+
+    // 🔄 Long-lived refresh token
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_REFRESH_SECRET_KEY,
+      { expiresIn: "7d" },
+    );
+
+    // Store refresh token (optional but recommended)
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // 🍪 Send tokens in cookies
+    res.send({
+        success: true,
+        msg: "Login successful",
+        email: user.email,
+        accessToken,
+        refreshToken,
+
+      });
+  } catch (error) {
+    console.log(error)
     return res.send({ success: false, msg: error });
   }
 };
@@ -234,8 +305,64 @@ export const refreshAccessToken = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.send({ success: true, msg: "refreshed successfully" });
+    res.send({ success: true, msg: "refreshed successfully"});
   } catch (err) {
+    console.log(err)
+    return res.status(403).json({
+      success: false,
+      msg: "Refresh token expired",
+    });
+  }
+};
+export const refreshAccessTokenForApp = async (req, res) => {
+   let refreshToken;
+
+    // 1️⃣ Check Authorization header
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      refreshToken = req.headers.authorization.split(" ")[1];
+    }
+  if (!refreshToken) {
+    return res.status(401).json({
+      success: false,
+      msg: "Login again",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET_KEY,
+    );
+    const user = await UserModel.findById(decoded.id);
+    console.log(user.refreshToken)
+    console.log(refreshToken)
+    if (!user || user.refreshToken !== refreshToken) {
+      console.log("invalid refresh token")
+      return res.status(403).json({
+        success: false,
+        msg: "Invalid refresh token",
+      });
+    }
+
+    const newAccessToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_ACCESS_SECRET_KEY,
+      { expiresIn: "15m" },
+    );
+const newrefreshToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_REFRESH_SECRET_KEY,
+      { expiresIn: "30d" },
+    );
+
+   
+    console.log("refresh")
+    res.send({ success: true, msg: "refreshed successfully",newAccessToken,newrefreshToken });
+  } catch (err) {
+    console.log(err)
     return res.status(403).json({
       success: false,
       msg: "Refresh token expired",
@@ -258,7 +385,7 @@ export const logout = async (req, res) => {
 
 export const getLoggedInUser = async (req, res, next) => {
   try {
-    const userId = req.user.id; // from protect middleware
+    const userId = req.user.id; // from protectforapp middleware
 
     const user = await UserModel.findById(userId).select(
       "-password -refreshToken -verifyotp -resetOtp",
@@ -493,5 +620,37 @@ export const GetAllUser=async(req,resp)=>{
     
   }
 }
+export const PushLastSongPlayedByUser=async(req,resp)=>{
+  try {
+      const userId = req.user.id;       // from protect middleware
+      if(!userId){
+        return resp.status(400).send({success:false,msg:"you are not loged in"})
+      }
+      let data=await UserModel.updateOne({_id:userId},{
+        $set:{Lastsongplayed:req.params.id}
+      })
+      if(data){
+        return resp.status(200).send({success:true,msg:"succesfully aur kya "})
+      }
+    
+  } catch (error) {
+    console.log(error)
+    console.log("error in pushing the lastsongplayed by user")
+    
+  }
+}
 
-
+export const GetLastPlayedSong=async(req,resp)=>{
+  try {
+     const userId = req.user.id;       // from protect middleware
+      if(!userId){
+        return resp.status(400).send({success:false,msg:"you are not loged in"})
+      }
+      let data=await SongModel.find({_id:req.params.id})
+      return resp.send({success:true,msg:data})
+    
+  } catch (error) {
+     console.log(error)
+    console.log("error in fetching the lastsongplayed by user")
+  }
+}

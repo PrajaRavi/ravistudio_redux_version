@@ -73,6 +73,17 @@ Debouncing->for ex->on scroll function if i execute my function A onscroll then 
 
 ->React.memo->is a HOC->Higher order component just like higher order function (HOF)->which takes function inside it as params so HOC->component which takes a new component as params inside it
 
+<------------------Interceptors in axios------------------------->
+🧠 First: what is an Axios interceptor?
+Think of an interceptor as a security guard 🚨 standing before every request and after every response.
+Axios gives you two types:
+Request interceptors → run before request is sent
+Response interceptors → run after response is received
+
+
+
+
+
 
 
 

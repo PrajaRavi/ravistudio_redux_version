@@ -15,7 +15,7 @@ import ffprobeStatic from "ffprobe-static";
 import { UserModel } from "./Models/User.model.js";
 import { SingerModel } from "./Models/Singer.model.js";
 import multer from "multer";
-import { protect } from "./Middlewares/Toke.auth.js";
+import { protect, protectforapp } from "./Middlewares/Toke.auth.js";
 import { DBConnect } from "./Config/connection1.config.js";
 import { UserRouter } from "./Routes/user.route.js";
 import { PlaylistRouter } from "./Routes/playlist.route.js";
@@ -38,7 +38,7 @@ DBConnect();
 // Enable CORS for all routes
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:4173"],
+    origin: ["http://localhost:5173","http://localhost:4173","http://192.168.1.155:8081","http://localhost:8081"],
     credentials: true,
   }),
 );
@@ -60,6 +60,7 @@ app.use("/playlist", PlaylistRouter);
 app.use("/songs", SongRouter);
 app.use("/contact", ContactRouter);
 app.use("/review", ReviewRouter);
+let dt=new Date()
 
 // Serve HLS output files statically (NEW)
 app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));
@@ -70,7 +71,7 @@ const Storage = multer.diskStorage({
   },
   //HERE FILENAME MEANS IT IS ALL ABOUT WHAT WILL BE NAME OF OUR FILE
   filename: function (req, file, cb) {
-    cb(null, `UserProfile.png`); //file.originalname.split('.').pop() it will basically remove all the sentance before . means at 0th position
+    cb(null, `${Date.now().toString()}UserProfile.png`); //file.originalname.split('.').pop() it will basically remove all the sentance before . means at 0th position
   },
 });
 
@@ -222,8 +223,42 @@ const getAllUserPlaylist = async (req, res) => {
     });
   }
 };
+const getAllUserPlaylistForApp = async (req, res) => {
+  try {
+    const userId = req.user.id;//this is owner id remmber
+    // console.log(userId)
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalSingers = await UserPlaylistModel.countDocuments();
+
+    const singers = await UserPlaylistModel.find({ owner: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      total: totalSingers,
+      page,
+      totalPages: Math.ceil(totalSingers / limit),
+      singers,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      msg: "Failed to fetch singers for app",
+    });
+  }
+};
+
 
 app.get("/get-all-user-playlist",protect,getAllUserPlaylist)
+app.get("/get-all-user-playlist-for-app",protectforapp,getAllUserPlaylistForApp)
 app.post("/update-user-language", protect, async (req, res) => {
   try {
     const { language } = req.body;
@@ -275,6 +310,7 @@ const updateProfileImage = async (req, res) => {
 
     // 2️⃣ User ID from protect middleware
     const userId = req.user.id;
+    console.log(userId)
 
     // 3️⃣ Update user
     const user = await UserModel.findByIdAndUpdate(
@@ -297,6 +333,49 @@ const updateProfileImage = async (req, res) => {
       profileImage: user.profileImage,
     });
   } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+const updateProfileImageForApp = async (req, res) => {
+  try {
+    // 1️⃣ Check file
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        msg: "Profile image is required",
+      });
+    }
+
+    // 2️⃣ User ID from protect middleware
+    const userId = req.params.id;
+    console.log(userId)
+
+    // 3️⃣ Update user
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      { profileImage: req.file.filename },
+      { new: true },
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    // 4️⃣ Success response
+    res.status(200).json({
+      success: true,
+      msg: "Profile image updated successfully",
+      profileImage: user.profileImage,
+    });
+  } catch (error) {
+    console.log(error)
     res.status(500).json({
       success: false,
       msg: "Something went wrong",
@@ -305,6 +384,7 @@ const updateProfileImage = async (req, res) => {
 };
 
 app.post("/update-profile-image",upload.single("Profile"), protect, updateProfileImage);
+app.post("/update-DP/:id",upload.single("Profile"), updateProfileImageForApp);
 
 // Serve HLS output files statically (NEW)
 app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));
@@ -357,8 +437,11 @@ const TranscodeAudio = async (req, res, next) => {
     // Mid Quality (128kbps) - Standard mobile/web streaming
     `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 128k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["Mid"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["Mid"]}/index.m3u8"`,
 
+
     // High Quality (320kbps) - For high-end audio / WiFi
     `ffmpeg -i ${uploadedAudioPath} -c:a aac -b:a 320k -f hls -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputFolderSubDirectoryPath["High"]}/segment%03d.ts" -start_number 0 "${outputFolderSubDirectoryPath["High"]}/index.m3u8"`,
+
+
   ];
   // Function to execute a single FFmpeg command (NEW)
   const executeCommand = (command) => {
