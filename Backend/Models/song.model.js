@@ -30,6 +30,25 @@ const SongSchema = new Schema(
         
       }
     },
+    audioURLAac: {
+      low: {
+        type: String,
+        required: true,
+      },
+      medium: {
+        type: String,
+        required: true,
+      },
+      high: {
+        type: String,
+        required: true,
+      },
+      master:{
+      type: String,
+        required: true,
+        
+      }
+    },
 
     coverImage: { type: String, default: "" },
 

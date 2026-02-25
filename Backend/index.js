@@ -386,6 +386,37 @@ const updateProfileImageForApp = async (req, res) => {
 app.post("/update-profile-image",upload.single("Profile"), protect, updateProfileImage);
 app.post("/update-DP/:id",upload.single("Profile"), updateProfileImageForApp);
 
+// executing a single command
+const runCommand = (command) => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("❌ FFmpeg Error:", stderr);
+        return reject(error);
+      }
+
+      console.log("✅ Completed:", command);
+      resolve(stdout);
+    });
+  });
+};
+
+// executing multiple command
+const executeFFmpegCommands = async (ffmpegCommands) => {
+  try {
+    for (const command of ffmpegCommands) {
+      console.log("🚀 Running:", command);
+      await runCommand(command); // waits until finished
+    }
+
+    console.log("🎵 All qualities generated successfully!");
+    return true;
+
+  } catch (err) {
+    console.error("❌ Conversion failed:", err);
+    throw err;
+  }
+};
 // Serve HLS output files statically (NEW)
 app.use("/hls-output", express.static(path.join(process.cwd(), "hls-output")));
 const Storage_for_song_upload = multer.diskStorage({
@@ -412,11 +443,19 @@ const TranscodeAudio = async (req, res, next) => {
 
   // Define output folder structure (NEW)
   const outputFolderRootPath = `./hls-output/${AudioId}`;
+  const outputFolderRootPathforaac = `./AAC-song/${AudioId}`;
+
   const outputFolderSubDirectoryPath = {
     Low: `${outputFolderRootPath}/Low`,
     Mid: `${outputFolderRootPath}/Mid`,
     High: `${outputFolderRootPath}/High`,
   };
+  const outputFolderSubDirectoryPathForAac = {
+    Low: `${outputFolderRootPathforaac}/Low`,
+    Mid: `${outputFolderRootPathforaac}/Mid`,
+    High: `${outputFolderRootPathforaac}/High`,
+  };
+
 
   // Create directories if they don't exist, for storing output video (NEW)
   if (!fs.existsSync(outputFolderRootPath)) {
@@ -426,6 +465,14 @@ const TranscodeAudio = async (req, res, next) => {
     fs.mkdirSync(outputFolderSubDirectoryPath["Mid"], { recursive: true });
     // ./hls-output/video-id/720p/
     fs.mkdirSync(outputFolderSubDirectoryPath["High"], { recursive: true });
+    // ./hls-output/video-id/1080p/
+    
+    // these directories are for .aac songs
+    fs.mkdirSync(outputFolderSubDirectoryPathForAac["Low"], { recursive: true });
+    // ./hls-output/video-id/480p/
+    fs.mkdirSync(outputFolderSubDirectoryPathForAac["Mid"], { recursive: true });
+    // ./hls-output/video-id/720p/
+    fs.mkdirSync(outputFolderSubDirectoryPathForAac["High"], { recursive: true });
     // ./hls-output/video-id/1080p/
   }
 
@@ -443,6 +490,20 @@ const TranscodeAudio = async (req, res, next) => {
 
 
   ];
+
+  const ffmpegCommandsForAac = [
+
+  // ✅ Low Quality (64 kbps)
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 64k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Low"]}/audio_64.aac"`,
+
+  // ✅ Mid Quality (128 kbps)
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 128k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Mid"]}/audio_128.aac"`,
+
+  // ✅ High Quality (320 kbps)
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 320k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["High"]}/audio_320.aac"`,
+
+];
+executeFFmpegCommands(ffmpegCommandsForAac)
   // Function to execute a single FFmpeg command (NEW)
   const executeCommand = (command) => {
     return new Promise((resolve, reject) => {
@@ -485,11 +546,16 @@ high/index.m3u8
         Mid: `http://localhost:${port}/hls-output/${AudioId}/Mid/index.m3u8`,
         High: `http://localhost:${port}/hls-output/${AudioId}/High/index.m3u8`,
       };
-
+const AACaudioURL={
+  Low:`http://localhost:${port}/AAC-song/${AudioId}/audio_64.aac`,
+  Mid:`http://localhost:${port}/AAC-song/${AudioId}/audio_128.aac`,
+  High:`http://localhost:${port}/AAC-song/${AudioId}/audio_320.aac`,
+}
       // just(uploadedAudioPath,videoUrls)
       // Send success response with video URLs
       req.uploadedAudioPath = uploadedAudioPath;
       req.audioURL = videoUrls;
+      req.AACaudioURL=AACaudioURL;
       // res.status(200).json({ AudioId, videoUrls })
       next();
     })
@@ -528,6 +594,7 @@ app.post(
         String(req.uploadedAudioPath).length,
       );
     let AudioURLObj = req.audioURL;
+    let AACaudioURL=req.AACaudioURL;
     console.log(filePath);
     try {
       /* ------------------ MUSIC METADATA ------------------ */
@@ -626,6 +693,12 @@ app.post(
           medium: String(AudioURLObj?.Mid),
           high: String(AudioURLObj?.High),
           master: String(AudioURLObj?.master),
+        },
+        audioURLAac: {
+          low: String(AACaudioURL?.Low),
+          medium: String(AACaudioURL?.Mid),
+          high: String(AACaudioURL?.High),
+         
         },
       });
 
