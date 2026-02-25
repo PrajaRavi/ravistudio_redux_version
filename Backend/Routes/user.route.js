@@ -8,6 +8,7 @@ import {
   login,
   loginforapp,
   logout,
+  PostSongQuality,
   PushLastSongPlayedByUser,
   refreshAccessToken,
   refreshAccessTokenForApp,
@@ -38,3 +39,5 @@ UserRouter.post("/post-last-song-played-by-user-for-app/:id",protectforapp,PushL
 UserRouter.post("/post-last-song-played-by-user/:id",protect,PushLastSongPlayedByUser)
 UserRouter.get("/get-last-played-song-for-app/:id",protectforapp,GetLastPlayedSong)
 UserRouter.get("/get-last-played-song/:id",protect,GetLastPlayedSong)
+UserRouter.post("/post-song-quality-for-app",protectforapp,PostSongQuality)
+UserRouter.post("/post-song-quality",protect,PostSongQuality)

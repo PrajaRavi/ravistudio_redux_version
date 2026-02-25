@@ -211,7 +211,7 @@ export const loginforapp = async (req, res, next) => {
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         msg: "User Not found",
       });
@@ -219,14 +219,14 @@ export const loginforapp = async (req, res, next) => {
     // if(user.DOB)
     const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         msg: "Invalid credentials",
       });
     }
 
     if (!user.isAccountVerified) {
-      return res.status(403).json({
+      return res.status(200).json({
         success: false,
         msg: "Please verify your account first",
       });
@@ -643,14 +643,34 @@ export const PushLastSongPlayedByUser=async(req,resp)=>{
 export const GetLastPlayedSong=async(req,resp)=>{
   try {
      const userId = req.user.id;       // from protect middleware
+    //  console.log(req.params.id)
       if(!userId){
         return resp.status(400).send({success:false,msg:"you are not loged in"})
       }
       let data=await SongModel.find({_id:req.params.id})
-      return resp.send({success:true,msg:data})
-    
+      if(data){
+        console.log(data)
+        return resp.status(200).json({success:true,msg:data})
+      }
+
+     
   } catch (error) {
      console.log(error)
     console.log("error in fetching the lastsongplayed by user")
+  }
+}
+
+export const PostSongQuality=async(req,resp)=>{
+  try {
+     const userId = req.user.id;       // from protect middleware
+     const SongQuality=req.body.SongQuality
+     let data=await UserModel.updateOne({_id:userId},{$set:{SongQuality}})
+     if(data)
+      return resp.status(200).send({success:true,msg:"successfull!!"})
+    
+  } catch (error) {
+    console.log(error)
+    console.log("error in posting the song quality of user")
+    return resp.status(500).send({success:false,msg:"error during posting the song quality"})
   }
 }
