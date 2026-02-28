@@ -34,6 +34,7 @@ UserRouter.post("/add-favourite-song", protect, addToFavourites);
 UserRouter.post("/add-favourite-song-for-app", protectforapp, addToFavourites);
 UserRouter.get("/get-favourite-songId", protect, GetFavouriteSongId);
 UserRouter.post("/updateuser", protect, UpdateUser);
+UserRouter.post("/updateuser-for-app", protectforapp, UpdateUser);
 UserRouter.get("/get-all-user", protect, GetAllUser);
 UserRouter.post("/post-last-song-played-by-user-for-app/:id",protectforapp,PushLastSongPlayedByUser)
 UserRouter.post("/post-last-song-played-by-user/:id",protect,PushLastSongPlayedByUser)

@@ -174,6 +174,7 @@ app.get("/singers", getAllSingers);
     });
   } catch (error) {
     console.log(error)
+    console.log("error in creating the user playlist")
     if(error.code==11000){
     return res.status(500).json({
       success: false,
@@ -191,6 +192,7 @@ app.get("/singers", getAllSingers);
 };
 
 app.post("/CreateUserPlaylist/",upload_for_UserPlaylistImg.single("image"),protect,createUserPlaylist)
+app.post("/CreateUserPlaylist-for-app/",upload_for_UserPlaylistImg.single("image"),protectforapp,createUserPlaylist)
 
 const getAllUserPlaylist = async (req, res) => {
   try {

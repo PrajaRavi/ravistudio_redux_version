@@ -196,7 +196,7 @@ export const addSongToMultiplePlaylists = async (req, res) => {
     console.error("Add song to multiple playlists error:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      msg: "Server error",
     });
   }
 };
