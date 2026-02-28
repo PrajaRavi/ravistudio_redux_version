@@ -26,6 +26,7 @@ import { UserPlaylistModel } from "./Models/User.playlist.model.js";
 import sharp from "sharp";
 import { ContactRouter } from "./Routes/contact.route.js";
 import { ReviewRouter } from "./Routes/Review.route.js";
+let UploadedAudioPath=""
 
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
@@ -598,6 +599,7 @@ app.post(
     let AudioURLObj = req.audioURL;
     let AACaudioURL=req.AACaudioURL;
     console.log(filePath);
+   
     try {
       /* ------------------ MUSIC METADATA ------------------ */
       const metadata = await parseFile(filePath, {
@@ -680,6 +682,8 @@ app.post(
       };
       console.log(AudioURLObj?.Low);
       console.log(AudioURLObj?.Mid);
+      
+       
       let data = await SongModel.create({
         title: String(myobj.title),
         artist: String(myobj.artist),
@@ -705,6 +709,8 @@ app.post(
       });
 
       console.log(await data.save());
+     
+        
 
       return res
         .status(200)
@@ -712,6 +718,12 @@ app.post(
     } catch (error) {
       console.error("Audio metadata extraction failed:", error);
       throw error;
+    }
+    finally{
+      setTimeout(() => {
+        fs.unlinkSync(filePath)
+      }, 10000);
+        
     }
   },
 );
@@ -843,6 +855,9 @@ const outputPath = path.join(
 //   .webp({ quality: 70 })
 //   .toFile(outputPath)
 // Start the server
+// console.log(UploadedAudioPath+"path")
+// console.log(__dirname)
+// fs.unlinkSync("./Upload/two.mp3")
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
 });

@@ -130,7 +130,7 @@ GetAllSongs()
     try {
     // alert(DeletedSongId)
     axios.defaults.withCredentials=true
-    let {data}=await axios.post(`http://localhost:4500/songs/DeleteSongFromBothSection/${DeletedSongId}`)
+    let {data}=await axios.delete(`http://localhost:4500/songs/DeleteSongFromBothSection/${DeletedSongId}`)
     
     if(data.success){
       setOpen(false)

@@ -12,5 +12,7 @@ PlaylistRouter.get("/get-user-playlist-song-for-app-by-id/:id",protectforapp,Get
 PlaylistRouter.post("/post-user-playlist-song-by-userplaylistid/",protect,addSongToMultiplePlaylists);
 PlaylistRouter.post("/post-user-playlist-song-by-userplaylistid-for-app/",protectforapp,addSongToMultiplePlaylists);
 PlaylistRouter.delete("/delete-user-playlist/:id",protect,DeleteUserPlaylist)
-PlaylistRouter.post("/delete-user-playlist-song/:playlistid/:songid",protect,DeleteUserPlaylistSong)
+PlaylistRouter.delete("/delete-user-playlist-for-app/:id",protectforapp,DeleteUserPlaylist)
+PlaylistRouter.delete("/delete-user-playlist-song/:playlistid/:songid",protect,DeleteUserPlaylistSong)
+PlaylistRouter.delete("/delete-user-playlist-song-for-app/:playlistid/:songid",protectforapp,DeleteUserPlaylistSong)
 

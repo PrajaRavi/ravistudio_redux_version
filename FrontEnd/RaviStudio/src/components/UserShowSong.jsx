@@ -179,7 +179,7 @@ GetAllSongs()
     }
         
     else{
-      let {data}=await axios.post(`http://localhost:4500/playlist/delete-user-playlist-song/${userplaylist}/${DeletedSongId}`)
+      let {data}=await axios.delete(`http://localhost:4500/playlist/delete-user-playlist-song/${userplaylist}/${DeletedSongId}`)
       
       if(data.success){
         setOpen(false)

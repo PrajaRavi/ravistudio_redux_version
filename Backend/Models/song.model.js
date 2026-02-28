@@ -43,11 +43,7 @@ const SongSchema = new Schema(
         type: String,
         required: true,
       },
-      master:{
-      type: String,
-        required: true,
-        
-      }
+     
     },
 
     coverImage: { type: String, default: "" },
