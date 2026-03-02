@@ -26,6 +26,7 @@ import { UserPlaylistModel } from "./Models/User.playlist.model.js";
 import sharp from "sharp";
 import { ContactRouter } from "./Routes/contact.route.js";
 import { ReviewRouter } from "./Routes/Review.route.js";
+
 let UploadedAudioPath=""
 
 dotenv.config();
@@ -413,6 +414,15 @@ const executeFFmpegCommands = async (ffmpegCommands) => {
     }
 
     console.log("🎵 All qualities generated successfully!");
+    setTimeout(() => {
+      if(UploadedAudioPath){
+        fs.unlinkSync(UploadedAudioPath)
+        console.log("successfully deleted ✅✅✅")
+      }
+      UploadedAudioPath=null;
+      
+    }, 3000);
+
     return true;
 
   } catch (err) {
@@ -550,9 +560,9 @@ high/index.m3u8
         High: `http://localhost:${port}/hls-output/${AudioId}/High/index.m3u8`,
       };
 const AACaudioURL={
-  Low:`http://localhost:${port}/AAC-song/${AudioId}/audio_64.aac`,
-  Mid:`http://localhost:${port}/AAC-song/${AudioId}/audio_128.aac`,
-  High:`http://localhost:${port}/AAC-song/${AudioId}/audio_320.aac`,
+  Low:`http://localhost:${port}/AAC-song/${AudioId}/Low.aac`,
+  Mid:`http://localhost:${port}/AAC-song/${AudioId}/Mid.aac`,
+  High:`http://localhost:${port}/AAC-song/${AudioId}/High.aac`,
 }
       // just(uploadedAudioPath,videoUrls)
       // Send success response with video URLs
@@ -599,6 +609,7 @@ app.post(
     let AudioURLObj = req.audioURL;
     let AACaudioURL=req.AACaudioURL;
     console.log(filePath);
+    UploadedAudioPath=filePath;
    
     try {
       /* ------------------ MUSIC METADATA ------------------ */
@@ -693,7 +704,7 @@ app.post(
         language: myobj.language,
         track: myobj.track,
         duration: myobj.duration,
-        coverImage: myobj.coverImage,
+        coverImage:"nothing",
         audioURL: {
           low: String(AudioURLObj?.Low),
           medium: String(AudioURLObj?.Mid),
@@ -720,9 +731,7 @@ app.post(
       throw error;
     }
     finally{
-      setTimeout(() => {
-        fs.unlinkSync(filePath)
-      }, 10000);
+      
         
     }
   },

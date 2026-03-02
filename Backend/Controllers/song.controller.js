@@ -3,11 +3,25 @@ import { SongModel } from "../Models/song.model.js";
 import {UserModel} from "../Models/User.model.js"
 import {ObjectId} from "mongodb";
 export const GetAllSongs=async (req,res)=>{
+   const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+const TotalSongs = await SongModel.countDocuments();
+    const skip = (page - 1) * limit;
   try {
     let data=await SongModel.find()
+     .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     if(!data) return;
-    return res.send({success:true,msg:data})
+    console.log(data)
+    console.log("end",page,Math.ceil(TotalSongs / limit))
+      
+    return res.status(200).send({success:true,
+      msg:data,
+      totalPages:Math.ceil(TotalSongs / limit),
+      page})
   } catch (error) {
+    console.log(error)
     return res.send({success:false,msg:"song fetch failed"})
   }
 }
