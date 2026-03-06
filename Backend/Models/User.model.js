@@ -22,6 +22,14 @@ SongQuality:{
   type:String,
   default:"",
 },
+ resetOtpExpiresAt: {
+      type: Number,
+      default: 0,
+    },
+ resetOtp: {
+      type:String,
+      default: "",
+    },
 contact:{
   type:"String",
   default:0

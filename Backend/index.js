@@ -55,6 +55,7 @@ app.use(express.static("./Images/Profile"));
 app.use(express.static("./Images/SongImages"));
 app.use(express.static("./Images/Singerimg"));
 app.use(express.static("./Images/UserPlaylistImg"));
+app.use("/AAC-song",express.static(path.join(process.cwd(), "AAC-song")));
 
 // creating roots
 app.use("/user", UserRouter);
@@ -260,10 +261,7 @@ const getAllUserPlaylistForApp = async (req, res) => {
   }
 };
 
-
-app.get("/get-all-user-playlist",protect,getAllUserPlaylist)
-app.get("/get-all-user-playlist-for-app",protectforapp,getAllUserPlaylistForApp)
-app.post("/update-user-language", protect, async (req, res) => {
+const UpdateUserLangFun=async (req, res) => {
   try {
     const { language } = req.body;
 
@@ -300,7 +298,11 @@ app.post("/update-user-language", protect, async (req, res) => {
       msg: "Something went wrong",
     });
   }
-});
+}
+app.get("/get-all-user-playlist",protect,getAllUserPlaylist)
+app.get("/get-all-user-playlist-for-app",protectforapp,getAllUserPlaylistForApp)
+app.post("/update-user-language", protect,UpdateUserLangFun);
+app.post("/update-user-language-for-app", protectforapp,UpdateUserLangFun);
 
 const updateProfileImage = async (req, res) => {
   try {
@@ -507,13 +509,13 @@ const TranscodeAudio = async (req, res, next) => {
   const ffmpegCommandsForAac = [
 
   // ✅ Low Quality (64 kbps)
-  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 64k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Low"]}/audio_64.aac"`,
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 64k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Low"]}/Low.aac"`,
 
   // ✅ Mid Quality (128 kbps)
-  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 128k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Mid"]}/audio_128.aac"`,
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 128k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["Mid"]}/Mid.aac"`,
 
   // ✅ High Quality (320 kbps)
-  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 320k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["High"]}/audio_320.aac"`,
+  `ffmpeg -i "${uploadedAudioPath}" -map 0:a -c:a aac -profile:a aac_low -b:a 320k -ar 44100 -ac 2 "${outputFolderSubDirectoryPathForAac["High"]}/High.aac"`,
 
 ];
 executeFFmpegCommands(ffmpegCommandsForAac)
@@ -560,9 +562,9 @@ high/index.m3u8
         High: `http://localhost:${port}/hls-output/${AudioId}/High/index.m3u8`,
       };
 const AACaudioURL={
-  Low:`http://localhost:${port}/AAC-song/${AudioId}/Low.aac`,
-  Mid:`http://localhost:${port}/AAC-song/${AudioId}/Mid.aac`,
-  High:`http://localhost:${port}/AAC-song/${AudioId}/High.aac`,
+  Low:`http://localhost:${port}/AAC-song/${AudioId}/Low/Low.aac`,
+  Mid:`http://localhost:${port}/AAC-song/${AudioId}/Mid/Mid.aac`,
+  High:`http://localhost:${port}/AAC-song/${AudioId}/High/High.aac`,
 }
       // just(uploadedAudioPath,videoUrls)
       // Send success response with video URLs
@@ -612,6 +614,7 @@ app.post(
     UploadedAudioPath=filePath;
    
     try {
+      const coverImageCollection=['five.webp','fourth.jpeg','one.jpeg','seven.webp','six.webp','third.jpeg','two.jpeg']
       /* ------------------ MUSIC METADATA ------------------ */
       const metadata = await parseFile(filePath, {
         native: true,
@@ -694,7 +697,7 @@ app.post(
       console.log(AudioURLObj?.Low);
       console.log(AudioURLObj?.Mid);
       
-       
+       coverImage=coverImageCollection[Math.round(Math.random()*(coverImageCollection.length-1))]
       let data = await SongModel.create({
         title: String(myobj.title),
         artist: String(myobj.artist),
@@ -704,7 +707,7 @@ app.post(
         language: myobj.language,
         track: myobj.track,
         duration: myobj.duration,
-        coverImage:"nothing",
+        coverImage:coverImage||"nothing",
         audioURL: {
           low: String(AudioURLObj?.Low),
           medium: String(AudioURLObj?.Mid),

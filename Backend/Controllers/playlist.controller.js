@@ -101,11 +101,19 @@ export const GetUserPlaylistById = async (req, resp) => {
 };
 
 export const GetUserPlaylistSongs=async(req,resp)=>{
+  const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+const TotalSongs = await SongModel.countDocuments();
+    const skip = (page - 1) * limit;
   try {
     let data = await UserPlaylistModel.findById(req.params.id);
     if (!data) return;
     let songdata=await SongModel.find({_id:{$in:data.songs}})
-    return resp.send({ success: true, msg: songdata });
+    .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+      console.log(page,Math.ceil(songdata.length/limit))
+    return resp.send({ success: true, msg: songdata,totalPages:Math.ceil(songdata.length/limit) });
   } catch (error) {
     console.log(error)
     resp.status(500).json({

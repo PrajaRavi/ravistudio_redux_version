@@ -46,9 +46,15 @@ export const StoreUserId=async (req,res)=>{
 }
 
 export const getFavouriteSongs = async (req, res, next) => {
-  try {
+  const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    try {
     const userId = req.user.id; // from protect middleware
-
+if(!userId){
+return res.status(401).send({msg:"Unothorized access",success:true})
+}
     const user = await UserModel.findById(userId)
       .select("favoriteSongs")
       .lean();
@@ -59,14 +65,18 @@ export const getFavouriteSongs = async (req, res, next) => {
         songs: [],
       });
     }
-
+// console.log(limit)
     const songs = await SongModel.find({
       _id: { $in: user.favoriteSongs },
-    });
-
+    })
+    .skip(skip)
+    .limit(limit)
+  console.log(songs.length)
+console.log("favourite song fetching")
     res.status(200).json({
       success: true,
       songs,
+      totalPages:Math.ceil(songs.length/limit)
     });
   } catch (error) {
     console.log(error)

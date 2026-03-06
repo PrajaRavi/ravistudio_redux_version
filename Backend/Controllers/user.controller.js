@@ -211,7 +211,7 @@ export const loginforapp = async (req, res, next) => {
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(200).json({
+      return res.status(401).json({
         success: false,
         msg: "User Not found",
       });
@@ -219,18 +219,19 @@ export const loginforapp = async (req, res, next) => {
     // if(user.DOB)
     const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
-      return res.status(200).json({
+      return res.status(401).json({
         success: false,
         msg: "Invalid credentials",
       });
     }
 
     if (!user.isAccountVerified) {
-      return res.status(200).json({
+      return res.status(403).json({
         success: false,
         msg: "Please verify your account first",
       });
     }
+
 
     // 🔑 Short-lived access token
     const accessToken = jwt.sign(
@@ -672,5 +673,132 @@ export const PostSongQuality=async(req,resp)=>{
     console.log(error)
     console.log("error in posting the song quality of user")
     return resp.status(500).send({success:false,msg:"error during posting the song quality"})
+  }
+}
+
+export async function SendResetPasswordOTP(req, resp) {
+  const { email } = req.body;
+
+  if (!email) {
+    return resp.status(400).send({ success: false, msg: "Please provide an email address" });
+  }
+
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() }); // Use lowercase for consistency
+
+    // Security Note: You might want to return 'success: true' even if user doesn't exist 
+    // to prevent email enumeration, but 404/403 is standard for many apps.
+    if (!user) {
+      return resp.status(404).send({ success: false, msg: "No account found with this email" });
+    }
+
+    // Generate a secure 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Set Expiry (5 minutes)
+    const otpExpiresAt = Date.now() + 5 * 60 * 1000;
+
+    // Save OTP to User document
+    await UserModel.updateOne(
+      { email: email.toLowerCase() },
+      {
+        $set: {
+          resetOtp: otp,
+          resetOtpExpiresAt: otpExpiresAt,
+        },
+      }
+    );
+
+    // Prepare Email
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Reset Your Password - Music App",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee">
+          <h2>Password Reset Request</h2>
+          <p>You requested a password reset. Use the code below to proceed:</p>
+          <h1 style="color: #3fa9f5; letter-spacing: 5px;">${otp}</h1>
+          <p>This code <b>expires in 5 minutes</b>.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `,
+    };
+
+    // Send Mail
+    await transporter.sendMail(mailOptions);
+
+    // Return a CLEAN success response
+    return resp.status(200).send({ 
+      success: true, 
+      msg: "OTP sent successfully to your email" 
+    });
+
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    return resp.status(500).send({ 
+      success: false, 
+      msg: "An internal server error occurred. Please try again later." 
+    });
+  }
+}
+
+export async function ResetUserPassword(req, resp) {
+  const { email, NewPassword, otp } = req.body;
+
+  // 1. Validation check (400 Bad Request)
+  if (!email || !NewPassword || !otp) {
+    return resp.status(400).send({ 
+      success: false, 
+      message: "All fields (email, new password, and OTP) are required" 
+    });
+  }
+
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+
+    // 2. User Existence check (404 Not Found)
+    if (!user) {
+      return resp.status(404).send({ success: false, message: "User not found" });
+    }
+
+    // 3. OTP Presence & Validity check (400 Bad Request)
+    // We check if resetOtp exists in DB to prevent reset logic if no OTP was requested
+    if (!user.resetOtp || user.resetOtp !== String(otp)) {
+      return resp.status(400).send({ success: false, message: "Invalid OTP" });
+    }
+
+    // 4. Expiry check (410 Gone or 400)
+    if (user.resetOtpExpiresAt < Date.now()) {
+      return resp.status(400).send({ success: false, message: "OTP has expired" });
+    }
+
+    // 5. Hashing & Updating (Use Async for better performance)
+    const saltRounds = 10;
+    const hashedPass = await bcrypt.hash(NewPassword, saltRounds);
+
+    await UserModel.updateOne(
+      { email: user.email },
+      {
+        $set: {
+          password: hashedPass,
+          resetOtp: "",           // Clear the OTP so it can't be reused
+          resetOtpExpiresAt: 0,   // Reset the timer
+        },
+      }
+    );
+
+    // 6. Success Response (200 OK)
+    return resp.status(200).send({
+      success: true,
+      message: "Password reset successfully. You can now login with your new password.",
+    });
+
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return resp.status(500).send({ 
+      success: false, 
+      message: "Internal server error during password reset" 
+    });
   }
 }
