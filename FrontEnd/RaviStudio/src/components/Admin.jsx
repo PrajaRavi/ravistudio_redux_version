@@ -258,7 +258,7 @@ else if(String(deleteType).includes("review")){
 }
 
 /* ---------- Components ---------- */
-function SidebarButton({icon,label,active,onClick}){return <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${active?"bg-purple-600":"hover:bg-white/10"}`}>{icon}<span>{label}</span></button>;}
+function SidebarButton({icon,label,active,onClick}){return <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${active?"bg-blue-400":"hover:bg-white/10"}`}>{icon}<span>{label}</span></button>;}
 function StatCard({title,value}){return <motion.div whileHover={{scale:1.05}} className="bg-white/5 border border-white/10 rounded-xl p-6"><p className="text-gray-400 text-sm">{title}</p><h3 className="text-3xl font-bold mt-2">{value}</h3></motion.div>;}
 function Table({children}){return <div className="overflow-x-auto rounded-xl border border-white/10"><table className="w-full text-sm">{children}</table></div>;}
 function Th({children}){return <th className="px-4 py-3 text-left bg-white/5 border-b border-white/10">{children}</th>;}

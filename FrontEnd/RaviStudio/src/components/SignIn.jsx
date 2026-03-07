@@ -165,7 +165,7 @@ const [success, setSuccess] = useState("");
                 whileTap={!loading ? { scale: 0.95 } : {}}
                 type="submit"
                 disabled={loading}
-                className={`w-full bg-purple-700 shadow-inner rounded-xl py-3 font-semibold 
+                className={`w-full bg-blue-400 shadow-inner rounded-xl py-3 font-semibold 
                   text-gray-800 transition-all flex items-center justify-center
                   ${loading ? "cursor-not-allowed opacity-80" : "hover:shadow-lg"}`}
               >
@@ -185,7 +185,7 @@ const [success, setSuccess] = useState("");
 /* ---------- Polymorphism Input Field (like Contact page) ---------- */
 function InputField({ icon, placeholder, name, value, onChange, type = "text" }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 w-full rounded-xl bg-white/50 backdrop-blur-sm border border-gray-200 shadow-inner focus-within:ring-2 focus-within:ring-purple-700 transition-all">
+    <div className="flex items-center gap-2 px-3 py-2 w-full rounded-xl bg-white/50 backdrop-blur-sm border border-gray-200 shadow-inner focus-within:ring-2 focus-within:ring-blue-400 transition-all">
       {icon}
       <input
         type={type}

@@ -101,15 +101,15 @@ export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,
             {loading?<span className="absolute top-10 left-10 w-full h-full"><Loader2/></span>:null}
             {profileImg!=""?<motion.img
               src={String(profileImg).includes("UserProfile")?`http://localhost:4500/${profileImg}`:profileImg}
-              className="w-full h-full rounded-full object-cover border-4 border-purple-600"
+              className="w-full h-full rounded-full object-cover border-4 border-blue-400"
               whileHover={{ scale: 1.05 }}
             />:<motion.img
               src={profileImg}
-              className="w-full h-full rounded-full object-cover border-4 border-purple-600"
+              className="w-full h-full rounded-full object-cover border-4 border-blue-400"
               whileHover={{ scale: 1.05 }}
             />}
 
-            <label className="absolute bottom-1 right-1 bg-purple-600 p-2 rounded-full cursor-pointer hover:bg-purple-700 transition">
+            <label className="absolute bottom-1 right-1 bg-blue-400 p-2 rounded-full cursor-pointer hover:bg-blue-400 transition">
               <Camera size={16} className="text-white" />
               <input
                 type="file"
@@ -133,7 +133,7 @@ export default function ProfileCard({ isOpen, onClose,profileImg,setProfileImg ,
             <Link onClick={()=>{
               setOpen(false)
             }} to={`/updateuser/${CurrUser._id}`}>
-            <button  name="update profile" className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 py-2.5 rounded-xl font-semibold text-white transition">
+            <button  name="update profile" className="w-full flex items-center justify-center gap-2 bg-blue-400 hover:bg-blue-400 py-2.5 rounded-xl font-semibold text-white transition">
               <User size={16} />
               Update Profile
             </button></Link>

@@ -13,7 +13,7 @@ export default function FullScreenLoader({ text = "Loading..." }) {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-14 h-14 rounded-full border-4 border-purple-500 border-t-transparent"
+          className="w-14 h-14 rounded-full border-4 border-blue-400 border-t-transparent"
         />
 
         {/* Text */}

@@ -88,7 +88,7 @@ GetAllSongs()
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className={SongData[currsongindex]?._id!=song?._id?"relative flex my-2 items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative my-2 flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
+            className={SongData[currsongindex]?._id!=song?._id?"relative flex my-2 items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative my-2 flex items-center gap-4 z-10 w-full bg-blue-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
             // className={"relative flex items-center gap-4 z-10 w-full bg-white/10 border my-2  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}

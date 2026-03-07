@@ -68,7 +68,7 @@ const {t}=useTranslation()
               value={formData.name}
               onChange={handleChange}
               placeholder={t("Name is required")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -82,7 +82,7 @@ const {t}=useTranslation()
               value={formData.email}
               onChange={handleChange}
               placeholder={t("emailreq")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -95,7 +95,7 @@ const {t}=useTranslation()
               value={formData.contact}
               onChange={handleChange}
               placeholder={t("contact")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -112,7 +112,7 @@ const {t}=useTranslation()
               value={formData.message}
               onChange={handleChange}
               placeholder={t("entermessage")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -123,7 +123,7 @@ const {t}=useTranslation()
             whileTap={{ scale: 0.97 }}
             type="submit"
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
-                       bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+                       bg-blue-400 hover:bg-blue-400 text-white font-semibold"
           >
             <Send size={18} /> {t('submit')}
           </motion.button>

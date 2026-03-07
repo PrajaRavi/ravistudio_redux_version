@@ -238,7 +238,7 @@ GetAllFavouriteSongId()
           <motion.div
             key={song._id}
             whileHover={{ scale: 1.01 }}
-            className={SongData[currsongindex]?._id!=song?._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-purple-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
+            className={SongData[currsongindex]?._id!=song?._id?"relative flex items-center gap-4 z-10 w-full bg-white/5 border  border-black/10 backdrop-blur-xl rounded-xl p-3":"relative flex items-center gap-4 z-10 w-full bg-blue-300/50 border  border-black/10 backdrop-blur-xl rounded-xl p-3"}
           >
             {/* Image */}
             <img loading="lazy" src={`http://localhost:4500/${song.coverImage}`} className="w-14 h-14 rounded-lg object-cover" />
@@ -333,7 +333,7 @@ GetAllFavouriteSongId()
                       : [...prev, pl.name]
                   );
                 }}
-                className="accent-purple-500"
+                className="accent-blue-400"
               />
               <div className="flex flex-col">
 
@@ -371,7 +371,7 @@ GetAllFavouriteSongId()
             }}
             disabled={!selectedPlaylists.length}
             className="px-4 py-2 rounded-lg text-sm
-                       bg-purple-600 hover:bg-purple-700
+                       bg-blue-400 hover:bg-blue-400
                        disabled:opacity-50"
           >
             Done

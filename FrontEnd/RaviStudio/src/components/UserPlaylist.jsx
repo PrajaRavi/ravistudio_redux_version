@@ -111,7 +111,7 @@ useEffect(()=>{
       </div>
     )):
     <div>
-      <Link to={"/addplaylist"} className="text-purple-400 font-bold md:text-2xl text-sm"><h1>Click to add your own playlist</h1></Link>
+      <Link to={"/addplaylist"} className="text-blue-400 font-bold md:text-2xl text-sm"><h1>Click to add your own playlist</h1></Link>
     </div>
     }
 

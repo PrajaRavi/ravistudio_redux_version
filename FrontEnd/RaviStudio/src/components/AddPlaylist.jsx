@@ -100,7 +100,7 @@ export default function AddPlaylist() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Playlist Name"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -114,13 +114,13 @@ export default function AddPlaylist() {
               value={formData.title}
               onChange={handleChange}
               placeholder="Playlist Title"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
           {/* Image Upload */}
           <div className="space-y-3">
-            <label className="flex items-center justify-center gap-2 cursor-pointer rounded-xl border border-dashed border-white/20 py-4 text-gray-300 hover:border-purple-500">
+            <label className="flex items-center justify-center gap-2 cursor-pointer rounded-xl border border-dashed border-white/20 py-4 text-gray-300 hover:border-blue-400">
               <ImagePlus size={20} /> Upload Playlist Image
               <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
             </label>
@@ -150,7 +150,7 @@ export default function AddPlaylist() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Playlist Description"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -160,7 +160,7 @@ export default function AddPlaylist() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-400 hover:bg-blue-400 text-white font-semibold"
           >
             <Upload size={18} /> Create Playlist
           </motion.button>

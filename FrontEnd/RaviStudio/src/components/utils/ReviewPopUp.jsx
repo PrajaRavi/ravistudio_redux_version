@@ -70,14 +70,14 @@ export default function ReviewPopup({ isOpen, onClose }) {
                          bg-white/10 text-white
                          placeholder:text-white
                          border border-white/10
-                         focus:outline-none focus:ring-2 focus:ring-purple-500"
+                         focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
 
             {/* Action */}
             <button
               onClick={onSubmit}
               className="mt-4 w-full py-2.5 rounded-xl
-                         bg-purple-600 hover:bg-purple-700
+                         bg-blue-400 hover:bg-blue-400
                          text-white font-semibold
                          transition"
             >

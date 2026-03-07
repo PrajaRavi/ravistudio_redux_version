@@ -149,7 +149,7 @@ const handleSubmit = async (e) => {
                 bg-white/10 text-white placeholder-white/70
                 border border-white/40
                 rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-purple-700
+                focus:outline-none focus:ring-2 focus:ring-blue-400
               "
             />
           </motion.div>
@@ -171,7 +171,7 @@ const handleSubmit = async (e) => {
                 bg-white/10 text-white placeholder-white/70
                 border border-white/40
                 rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-purple-700
+                focus:outline-none focus:ring-2 focus:ring-blue-400
               "
             />
           </motion.div>
@@ -193,7 +193,7 @@ const handleSubmit = async (e) => {
                 bg-white/10 text-white placeholder-white/70
                 border border-white/40
                 rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-purple-700
+                focus:outline-none focus:ring-2 focus:ring-blue-400
               "
             />
           </motion.div>

@@ -18,7 +18,7 @@ export default function MusicNavbar() {
   let [ProfileImg,setProfileImg]=useState("http://localhost:4500")
   const SearchBar = () => {
   return (
-    <div className="flex items-center w-[100px] border-purple-700 max-w-md rounded-full border-2 bg-white/5 backdrop-blur-xl px-4  shadow-sm focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-blue-200">
+    <div className="flex items-center w-[100px] border-blue-400 max-w-md rounded-full border-2 bg-white/5 backdrop-blur-xl px-4  shadow-sm focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-200">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-5 w-5 text-gray-400"
@@ -65,7 +65,7 @@ export default function MusicNavbar() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2 font-bold text-gray-100">
-          <Music className="text-purple-500" />
+          <Music className="text-blue-400" />
           <span className="text-lg">MyMusic</span>
         </div>
 
@@ -85,7 +85,7 @@ export default function MusicNavbar() {
           <div className="w-fit inline-flex gap-2">
 
 <SearchBar/>
-          <button name="profile" onClick={()=>setopenprofile(true)} className="w-10 h-10 flex  items-center justify-center rounded-full border-purple-700  border-2">
+          <button name="profile" onClick={()=>setopenprofile(true)} className="w-10 h-10 flex  items-center justify-center rounded-full border-blue-400  border-2">
             {ProfileImg!=""?<img loading="lazy" src={ProfileImg?.includes("UserProfile")?`http://localhost:4500/${ProfileImg}`:ProfileImg} alt={ProfileImg} className="rounded-full" />:
             <div>
                 

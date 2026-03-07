@@ -70,8 +70,8 @@ export default function Footer() {
             />
             <SocialIcon
               Icon={FaFacebookF}
-              hoverColor="hover:bg-blue-600"
-              glow="hover:shadow-blue-600/50"
+              hoverColor="hover:bg-blue-400"
+              glow="hover:shadow-blue-400/50"
             />
           </motion.div>
         </div>

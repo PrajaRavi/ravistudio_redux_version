@@ -83,7 +83,7 @@ else{
               setSelectedLanguage(lang)}}
             className={`cursor-pointer rounded-2xl p-4 backdrop-blur-xl border transition-all
               ${selectedLanguage?.code === lang.code
-                ? "bg-purple-600/30 border-purple-500"
+                ? "bg-blue-400/30 border-blue-400"
                 : "bg-white/10 border-white/20 hover:bg-white/20"}`}
           >
             <div className="flex flex-col items-center text-center gap-2">
@@ -108,7 +108,7 @@ else{
         name="continue"
           onClick={handleSubmit}
           disabled={!selectedLanguage}
-          className="px-8 py-3 rounded-xl  bg-purple-600 hover:bg-purple-700 disabled:opacity-40 transition"
+          className="px-8 py-3 rounded-xl  bg-blue-400 hover:bg-blue-400 disabled:opacity-40 transition"
         >
           {t('submit')}
         </button>:null}

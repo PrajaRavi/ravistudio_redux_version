@@ -199,7 +199,7 @@ useEffect(() => {
         className="h-1 w-full bg-black/50 cursor-pointer"
       >
         <motion.div
-          className="h-full bg-purple-600"
+          className="h-full bg-blue-400"
           animate={{ width: `${progress}%` }}
           transition={{ ease: "linear" }}
         />
@@ -222,7 +222,7 @@ useEffect(() => {
             <p className="text-sm font-semibold text-gray-100 truncate">
               {SongData[parseInt(currsongindex)]?.title}
             </p>
-            <p className="text-xs text-purple-700 truncate">{SongData[parseInt(currsongindex)]?.artist}</p>
+            <p className="text-xs text-blue-400 truncate">{SongData[parseInt(currsongindex)]?.artist}</p>
           </div>
         </div>
 
@@ -230,7 +230,7 @@ useEffect(() => {
         <div className="flex items-center relative md:right-20 gap-3 md:gap-4">
           <button name={"fulle"} onClick={()=>HandleSuffleSong()}>
 
-          <Shuffle size={18} className={suffle==false?"text-white hover:text-purple-700":"text-purple-700 hover:text-purple-400"} />
+          <Shuffle size={18} className={suffle==false?"text-white hover:text-blue-400":"text-blue-400 hover:text-blue-400"} />
           </button>
           <button name={"back"} onClick={()=>HandlePrevSong()}>
 
@@ -241,7 +241,7 @@ useEffect(() => {
           <button
           name="play/pause"
             onClick={() => dispatch(SetisPlaying(!isPlaying))}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-400"
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
@@ -252,11 +252,11 @@ useEffect(() => {
 
           <button name="loop" onClick={toggleLoop}>
             {loopMode === "one" ? (
-              <Repeat1 size={18} className="text-purple-500" />
+              <Repeat1 size={18} className="text-blue-400" />
             ) : (
               <Repeat
                 size={18}
-                className={loopMode === "all" ? "text-purple-500" : "text-white"}
+                className={loopMode === "all" ? "text-blue-400" : "text-white"}
               />
             )}
           </button>
