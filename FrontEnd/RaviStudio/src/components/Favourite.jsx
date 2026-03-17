@@ -124,6 +124,8 @@ GetAllSongs()
       
     </div>
     {<DeleteSongPopup
+    title={"Delete favourite song"}
+    description={`Are you sure you want to delete this song `}
   open={open}
   onClose={() => setOpen(false)}
   onConfirm={async ()=>{

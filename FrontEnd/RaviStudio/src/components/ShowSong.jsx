@@ -285,7 +285,7 @@ GetAllFavouriteSongId()
           }}
   className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/10"
 >
-  <Plus size={16} /> Add Playlist
+  <Plus size={16} /> Add to Playlist
 </button>
                   <button name="share" onClick={() => handleShare(song)} className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/10"><Share2 size={16} />Share</button>
                 </motion.div>

@@ -26,6 +26,7 @@ import { UserPlaylistModel } from "./Models/User.playlist.model.js";
 import sharp from "sharp";
 import { ContactRouter } from "./Routes/contact.route.js";
 import { ReviewRouter } from "./Routes/Review.route.js";
+import morgan from "morgan";
 
 let UploadedAudioPath=""
 
@@ -37,6 +38,9 @@ const port = process.env.PORT || 2000;
 const app = express();
 DBConnect();
 
+app.use(morgan("dev"))
+
+app.use
 // Enable CORS for all routes
 app.use(
   cors({
