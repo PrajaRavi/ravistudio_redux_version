@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {  GetUser, SignUpUser } from "../Thunk/User.thunk";
+import {  GetUser } from "../Thunk/User.thunk";
 const initialState = {
   CurrUser: null,
   IsUserLogin: false,
@@ -31,26 +31,8 @@ const UserSlice = createSlice({
     },
     
   },
-  extraReducers: (addBuilder) => {
-    addBuilder.addCase(SignUpUser.pending, (state, action) => {
-      state.signuploading = true;
-      state.error = null;
-      state.CurrUser = null;
-    });
-    addBuilder.addCase(SignUpUser.fulfilled, (state, action) => {
-      
-      state.signuploading = false;
-      state.error = null;
-      state.CurrUser = action.payload;
-
-    });
-    addBuilder.addCase(SignUpUser.rejected, (state, action) => {
-      console.log(action)
-      state.signuploading = false;
-      state.error = action.payload;
-    });
-
-    addBuilder.addCase(GetUser.pending, (state, action) => {
+    extraReducers:(addBuilder)=>{
+         addBuilder.addCase(GetUser.pending, (state, action) => {
       state.GetUserLoading = true;
       state.error = null;
       state.language=null;
@@ -68,9 +50,8 @@ const UserSlice = createSlice({
       state.GetUserLoading = false;
       state.error = action.payload;
     });
-
-  
-  },
+    }
+ 
 });
 export const { SetLanguage, SetLogin, SetCurrUser, Setsignindata,SetIsAdmin } =
   UserSlice.actions;

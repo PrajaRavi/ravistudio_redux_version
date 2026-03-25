@@ -8,20 +8,6 @@ const api = axios.create({
   withCredentials: true, // important for sending cookies
 });
 
-export const SignUpUser = createAsyncThunk(
-  "user/SignUpUser",
-  async (formdata, { rejectWithValue, dispatch }) => {
-    try {
-      let { data } = await api.post(`user/signup`,
-        formdata,
-      );
-      console.log(data);
-      return data;
-    } catch (error) {
-      return error.response.data.message
-    }
-  },
-);
 export const GetUser = createAsyncThunk(
   "user/GetUser",
   async (formdata, { rejectWithValue, dispatch }) => {

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import {motion} from "framer-motion"
 import {useSelector,useDispatch} from "react-redux"
 import { Calendar, Lock, Mail, Phone, Satellite, User } from 'lucide-react';
-import { SignUpUser } from '../Redux/Thunk/User.thunk';
+
 import { SetCurrUser } from '../Redux/Slices/User.slice';
 import {Helmet} from "react-helmet-async"
 
@@ -17,7 +17,7 @@ const SignUp = () => {
 
   const UserState=useSelector(state=>state.User.CurrUser)
   const signuperror=useSelector(state=>state.User.error)
-  const SignUpFormLoading=useSelector(state=>state.User.signuploading)
+ const [isloading,setisloading]=useState(false)
 
   const dispatch=useDispatch()
   // 1. Group state into one object for efficiency
@@ -60,38 +60,68 @@ const SignUp = () => {
       seterrmsg(validationError);
       return;
     }
+     try {
+      seterrmsg("");
+      setisloading(true);
+      const {data} = await axios.post(`http://localhost:4500/user/signup`, formData);
+      
 
-      dispatch(SignUpUser(formData))
+      if (data.success) {
+      navigate("/VerifyOTP/kingraviprajapati@gmail.com")
+      toast.success("signup successfully!!!")
+        
+      } 
+    } catch (error) {
+        console.log("Login Error:", error);
+      if (error.response) {
+      const { status, data } = error.response;
+      const errorMessage = data.msg || "An error occurred";
+      toast.error(errorMessage)
+      if(status==403){
+        navigate("/signin")
+        
+      }
+    } else {
+      
+      toast.error('Unable to reach the server. Please check your internet.')
+    }
+      console.log("Signup Error:", error);
+    
+    } finally {
+      setisloading(false);
+    }
+
+     
 
       
     
   }
-  useEffect(()=>{
-    if(signuperror){
-      toast.error(signuperror)
-    }
+  // useEffect(()=>{
+  //   if(signuperror){
+  //     toast.error(signuperror)
+  //   }
     
-    if(SignUpFormLoading==false && UserState){
+  //   if(isloading==false && UserState){
       
 
-      if (UserState?.msg == "Signup successful. Please verify your email.") {
-        toast.success(t('signupsuccessfully'));
-        setTimeout(() => toast.success('OTP sent to your email'), 2000);
-        dispatch(SetCurrUser(null))
-        navigate('/VerifyOTP');
-      } else if (UserState?.msg == "User already exist") {
-        toast.warning(t('alreadysignup'));
-        dispatch(SetCurrUser(null))
-        navigate('/signin');
+  //     if (UserState?.msg == "Signup successful. Please verify your email.") {
+  //       toast.success(t('signupsuccessfully'));
+  //       setTimeout(() => toast.success('OTP sent to your email'), 2000);
+  //       dispatch(SetCurrUser(null))
+  //       navigate('/VerifyOTP');
+  //     } else if (UserState?.msg == "User already exist") {
+  //       toast.warning(t('alreadysignup'));
+  //       dispatch(SetCurrUser(null))
+  //       navigate('/signin');
 
-      } else {
-        dispatch(SetCurrUser(null))
+  //     } else {
+  //       dispatch(SetCurrUser(null))
 
-        toast.error(UserState?.msg || "Something went wrong");
-        // btnRef.current.innerText = 'Submit';
-      }
-    }
-  },[SignUpFormLoading])
+  //       toast.error(UserState?.msg || "Something went wrong");
+  //       // btnRef.current.innerText = 'Submit';
+  //     }
+  //   }
+  // },[isloading])
   return (
     <>
     <Helmet>
@@ -178,15 +208,15 @@ const SignUp = () => {
           {/* Submit */}
            <motion.button
            name='signup'
-      whileHover={!SignUpFormLoading ? { scale: 1.05 } : {}}
-      whileTap={!SignUpFormLoading ? { scale: 0.95 } : {}}
+      whileHover={!isloading ? { scale: 1.05 } : {}}
+      whileTap={!isloading ? { scale: 0.95 } : {}}
       type="submit"
-      disabled={SignUpFormLoading}
+      disabled={isloading}
       className={`w-full bg-blue-400 shadow-inner rounded-xl py-3 font-semibold 
         text-gray-800 transition-all flex items-center justify-center
-        ${SignUpFormLoading ? "cursor-not-allowed opacity-80" : "hover:shadow-lg"}`}
+        ${isloading ? "cursor-not-allowed opacity-80" : "hover:shadow-lg"}`}
     >
-      {SignUpFormLoading ? (
+      {isloading ? (
         <span className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
       ) : (
         t('signup')

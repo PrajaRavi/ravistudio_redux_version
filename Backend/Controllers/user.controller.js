@@ -19,7 +19,7 @@ export const SignUp = async_Handler(async (req, res, next) => {
   let age = today.getFullYear() - birthDate.getFullYear();
 
   if (age < 15) {
-    return res.send({
+    return res.status(400).send({
       success: false,
       msg: "Your age should be greater than 15",
     });
@@ -64,11 +64,11 @@ export const SignUp = async_Handler(async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.send({ success: false, msg: "User already exist" });
+      return res.status(403).send({ success: false, msg: "User already exist" });
     } else if (error.message) {
-      return res.send({ success: false, msg: error.message });
+      return res.status(500).send({ success: false, msg: error.message });
     } else {
-      return res.send({ success: false, msg: error });
+      return res.status(500).send({ success: false, msg: error });
     }
   }
 });

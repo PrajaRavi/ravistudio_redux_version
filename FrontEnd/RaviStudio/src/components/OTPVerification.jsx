@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -28,11 +29,12 @@ const inputVariants = {
 
 const EmailVerification = () => {
   const navigate=useNavigate()
+  const {email}=useParams();
   const [loading, setLoading] = useState(false);
 const [error, setError] = useState("");
 const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
-    email: "",
+    email: email,
     otp: "",
     confirmOtp: "",
   });
@@ -86,11 +88,14 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+useEffect(()=>{
+setFormData({email:email,otp:"",confirmOtp:""})
+},[])
 
   return (
     <>
     <Helmet>
-            <title>Admin Page | My Music App</title>
+            <title>Email varification | My Music App</title>
     
             <meta
               name="description"

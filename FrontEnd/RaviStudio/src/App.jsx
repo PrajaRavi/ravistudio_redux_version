@@ -7,7 +7,7 @@ import { SetCurrUser, SetLogin } from './Redux/Slices/User.slice'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import FullScreenLoader from './components/FetchUserLoading'
-import { GetUser } from './Redux/Thunk/User.thunk'
+
 import Private from './components/layout/Private'
 import BottomMusicPlayer from "./components/MusicPlayer"
 //<-----------------Now due to this memo function these page will not loaded every time ----------------------> 
@@ -15,6 +15,7 @@ import MusicNavbar from './components/Navbar';
 import ReviewPopup from './components/utils/ReviewPopUp';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GetUser } from './Redux/Thunk/User.thunk';
 const Navbar = React.memo(MusicNavbar);
 const MusicPlayer = React.memo(BottomMusicPlayer);
 
@@ -88,8 +89,8 @@ useEffect(()=>{
 
   
   useEffect(()=>{
-    dispatch(GetUser())
-  
+   
+dispatch(GetUser())  
     },[IsUserLogin,UserUpdatedProfile])
   return (
     <>
@@ -108,6 +109,7 @@ useEffect(()=>{
 
      <Route path='/signup' element={<SignUpPage/>}/>
      <Route path='/signin' element={<SignInPage/>}/>
+     <Route path='/VerifyOTP/:email' element={<OTPVerification/>}/>
      <Route element={<Private/>}>
      <Route path='/addplaylist' element={<AddPlaylist/>}/>
      <Route path='/updateuser/:userid' element={<UpdateUser/>}/>
@@ -115,7 +117,6 @@ useEffect(()=>{
      <Route path='/favourite' element={<Favourite/>}/>
      <Route path='/showsong/:playlist' element={<PlaylistSongs/>}/>
      <Route path='/usershowsong/:userplaylist' element={<UserShowSong/>}/>
-     <Route path='/VerifyOTP' element={<OTPVerification/>}/>
      </Route>
 </Routes>
 </Suspense>
