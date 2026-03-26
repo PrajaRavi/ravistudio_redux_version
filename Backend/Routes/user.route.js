@@ -12,7 +12,9 @@ import {
   PushLastSongPlayedByUser,
   refreshAccessToken,
   refreshAccessTokenForApp,
-  resendOtp,
+  
+  resendOtpforForgotPass,
+  resendOtpforverification,
   ResetUserPassword,
   SendResetPasswordOTP,
   SignUp,
@@ -31,7 +33,8 @@ UserRouter.post("/refresh-token-for-app",refreshAccessTokenForApp);
 UserRouter.post("/logout", logout);
 UserRouter.get("/me", protect, getLoggedInUser);
 UserRouter.get("/meforapp", protectforapp, getLoggedInUser);
-UserRouter.post("/resend-otp", resendOtp);
+UserRouter.post("/resend-otp", resendOtpforverification);
+UserRouter.post("/resend-otp-for-forgotpass", resendOtpforForgotPass);
 UserRouter.post("/add-favourite-song", protect, addToFavourites);
 UserRouter.post("/add-favourite-song-for-app", protectforapp, addToFavourites);
 UserRouter.get("/get-favourite-songId", protect, GetFavouriteSongId);

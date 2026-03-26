@@ -67,7 +67,7 @@ const SignUp = () => {
       
 
       if (data.success) {
-      navigate("/VerifyOTP/kingraviprajapati@gmail.com")
+      navigate(`/VerifyOTP/${formData.email}`)
       toast.success("signup successfully!!!")
         
       } 

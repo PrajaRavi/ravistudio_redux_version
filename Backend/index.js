@@ -44,7 +44,7 @@ app.use
 // Enable CORS for all routes
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:4173","http://192.168.1.155:8081","http://localhost:8081"],
+    origin: ["http://localhost:5173","http://localhost:4173","http://192.168.1.155:8081","http://localhost:8081","http://2f1pjzhm-5173.inc1.devtunnels.ms/"],
     credentials: true,
   }),
 );

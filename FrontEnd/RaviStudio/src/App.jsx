@@ -16,6 +16,9 @@ import ReviewPopup from './components/utils/ReviewPopUp';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GetUser } from './Redux/Thunk/User.thunk';
+import Forgotpass from './components/Forgotpass';
+import ResetPass from './components/ResetPass';
+
 const Navbar = React.memo(MusicNavbar);
 const MusicPlayer = React.memo(BottomMusicPlayer);
 
@@ -110,6 +113,8 @@ dispatch(GetUser())
      <Route path='/signup' element={<SignUpPage/>}/>
      <Route path='/signin' element={<SignInPage/>}/>
      <Route path='/VerifyOTP/:email' element={<OTPVerification/>}/>
+     <Route path='/forgotpass' element={<Forgotpass/>}/>
+     <Route path='/resetpass/:email' element={<ResetPass/>}/>
      <Route element={<Private/>}>
      <Route path='/addplaylist' element={<AddPlaylist/>}/>
      <Route path='/updateuser/:userid' element={<UpdateUser/>}/>

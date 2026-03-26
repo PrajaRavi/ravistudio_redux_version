@@ -6,6 +6,7 @@ import { async_Handler } from "../utilities/async_Handler.utility.js";
 import { err_Handler } from "../utilities/err_Handler.utility.js";
 import {SongModel} from "../Models/song.model.js"
 import { UserModel } from "../Models/User.model.js";
+import { addEmailToQueue, addOTPInForgotPassQueue, addResendOTPForEmailVerification, addResendOTPInForgotPassQueue } from "../Bullmq/producer.js";
 export const SignUp = async_Handler(async (req, res, next) => {
   const { firstName, lastName, dob, email, password, contact } = req.body;
 
@@ -51,17 +52,25 @@ export const SignUp = async_Handler(async (req, res, next) => {
     });
 
     /* ---------- SEND EMAIL ---------- */
-    await transporter.sendMail({
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "Email Verification OTP",
-      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+    // await transporter.sendMail({
+    //   from: process.env.SENDER_EMAIL,
+    //   to: email,
+    //   subject: "Email Verification OTP",
+    //   text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+    // });
+ let emaildata=   await addEmailToQueue(email,otp)
+ if(emaildata){
+   return res.status(201).json({
+     success: true,
+     msg: "Signup successful. Please verify your email.",
     });
+  }
+  else{
+    console.log("some error ocuued during sending emails")
+  }
 
-    return res.status(201).json({
-      success: true,
-      msg: "Signup successful. Please verify your email.",
-    });
+   
+   
   } catch (error) {
     if (error.code === 11000) {
       return res.status(403).send({ success: false, msg: "User already exist" });
@@ -73,37 +82,41 @@ export const SignUp = async_Handler(async (req, res, next) => {
   }
 });
 
-export const verifyOtp = async_Handler(async (req, res, next) => {
+export const verifyOtp = async (req, res, next) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
-    return next(new err_Handler("Email and OTP are required", 400));
+    // return next(new err_Handler("Email and OTP are required", 400));
+    return res.status(400).send({ success: false, msg: "Email and OTP are required" });
+
   }
 
   // 1️⃣ Find user
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    return res.send({ success: false, msg: "User not found" });
+    return res.status(404).send({ success: false, msg: "User not found" });
   }
 
   // 2️⃣ Already verified
   if (user.isAccountVerified) {
     // return next(new err_Handler("Account already verified", 400));
-    return res.send({ success: false, msg: "Account already verified" });
+    return res.status(401).send({ success: false, msg: "Account already verified" });
   }
 
   // 3️⃣ OTP expired
   if (user.verifyOtpExpiresAt < Date.now()) {
     // return next(new err_Handler("OTP has expired", 410));
-    return res.send({ success: false, msg: "OTP has expired" });
+    return res.status(410).send({ success: false, msg: "OTP has expired" });
   }
   // 4️⃣ Hash incoming OTP
   const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
   // console.log(hashedOtpuser.verifyOtp)
   // 5️⃣ Compare OTP
   if (hashedOtp != user.verifyOtp) {
-    return next(new err_Handler("Invalid OTP", 401));
+    // return next(new err_Handler("Invalid OTP", 401));
+    return res.status(401).send({ success: false, msg: "Invalid OTP" });
+    
   }
 
   // 6️⃣ Verify account
@@ -117,7 +130,7 @@ export const verifyOtp = async_Handler(async (req, res, next) => {
     success: true,
     msg: "Email verified successfully",
   });
-});
+};
 
 export const login = async (req, res, next) => {
   try {
@@ -409,7 +422,7 @@ export const getLoggedInUser = async (req, res, next) => {
   }
 };
 
-export const resendOtp = async (req, res, next) => {
+export const resendOtpforverification = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -432,31 +445,72 @@ export const resendOtp = async (req, res, next) => {
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
     // 🔒 Hash OTP
-    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    // const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
     // ✅ Save OTP + expiry in DB
-    user.verifyOtp = hashedOtp;
+    user.verifyOtp = otp;
     user.verifyOtpExpiresAt = Date.now() + 10 * 60 * 1000; // 10 min
     await user.save();
 
     // ✉️ Send OTP via email
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "OTP Verification - Resend",
-      text: `Hello ${user.firstName},\n\nYour OTP for account verification is: ${otp}\nThis OTP will expire in 10 minutes.`,
-    };
+    
+    let data=await addResendOTPForEmailVerification(email,otp,user.firstName)
+    if(data){
 
-    await transporter.sendMail(mailOptions);
-
-    res.status(200).json({
-      success: true,
-      msg: "OTP resent successfully. Please check your email.",
-    });
+      
+      res.status(200).json({
+        success: true,
+        msg: "OTP resent successfully. Please check your email.",
+      });
+    }
   } catch (error) {
     return res.send({ success: false, msg: error });
   }
 };
+export const resendOtpforForgotPass=async(req,res,next)=>{
+ try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, msg: "Email required" });
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    
+    // 🔑 Generate new OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    // 🔒 Hash OTP
+    // const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex"); bad me dekh lunga
+
+    // ✅ Save OTP + expiry in DB
+    user.resetOtp = otp;
+    user.resetOtpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 min
+    await user.save();
+
+    // ✉️ Send OTP via email
+    let data=await addResendOTPInForgotPassQueue(email,otp,user.firstName)
+    console.log(data)
+    if(data){
+
+      
+      res.status(200).json({
+        success: true,
+        msg: "OTP resent successfully. Please check your email.",
+      });
+    }
+    else{
+      console.log("error in resendotpforgotpass bullmq")
+    }
+  } catch (error) {
+    console.log(error)
+    return res.send({ success: false, msg:"error in  resendOtpforForgotPass "});
+  }
+}
 
 export const updateProfileImage = async (req, res) => {
   try {
@@ -709,30 +763,21 @@ export async function SendResetPasswordOTP(req, resp) {
       }
     );
 
-    // Prepare Email
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: user.email,
-      subject: "Reset Your Password - Music App",
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee">
-          <h2>Password Reset Request</h2>
-          <p>You requested a password reset. Use the code below to proceed:</p>
-          <h1 style="color: #3fa9f5; letter-spacing: 5px;">${otp}</h1>
-          <p>This code <b>expires in 5 minutes</b>.</p>
-          <p>If you didn't request this, please ignore this email.</p>
-        </div>
-      `,
-    };
-
+   
     // Send Mail
-    await transporter.sendMail(mailOptions);
+    let data=await addOTPInForgotPassQueue(email,otp)
+    if(data){
 
-    // Return a CLEAN success response
-    return resp.status(200).send({ 
-      success: true, 
-      msg: "OTP sent successfully to your email" 
-    });
+      
+      // Return a CLEAN success response
+      return resp.status(200).send({ 
+        success: true, 
+        msg: "OTP sent successfully to your email" 
+      });
+    }
+    else{
+      console.log("error in sending forgot pass otp")
+    }
 
   } catch (error) {
     console.error("Forgot Password Error:", error);

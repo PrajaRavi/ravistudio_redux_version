@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import {Lock, Mail} from "lucide-react"
+import {Lock, Mail, PhoneCall, Timer} from "lucide-react"
 import { SetLogin } from "../Redux/Slices/User.slice";
 import {Helmet} from "react-helmet-async"
 import { useTranslation } from "react-i18next";
-export default function Login() {
+import OtpTimer from "./utils/Timer";
+export default function ResetPass() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const dispatch=useDispatch()
   const signindata=useSelector(state=>state.User.signindata)
+  const {email}=useParams()
   
-  const signinerror=useSelector(state=>state.User.error)
   const [formData, setFormData] = useState({
-      email: '',
-      password: '',
+      email: email,
+      NewPassword: '',
+      otp:""
     });
     
 const [loading, setLoading] = useState(false);
@@ -36,8 +38,8 @@ const [success, setSuccess] = useState("");
   setError("");
   setSuccess("");
 
-  if (!formData.email || !formData.password) {
-    setError("Email and password are required");
+  if (!formData.email || !formData.NewPassword||!formData.otp) {
+    setError("All feilds are required");
     return;
   }
 
@@ -45,10 +47,11 @@ const [success, setSuccess] = useState("");
     setLoading(true);
 
     const { data } = await axios.post(
-      "http://localhost:4500/user/login",
+      "http://localhost:4500/user/ResetUserPassword",
       {
         email: formData.email,
-        password: formData.password,
+        NewPassword: formData.NewPassword,
+        otp:formData.otp
       },
       {
         withCredentials: true, // IMPORTANT for cookies
@@ -56,24 +59,22 @@ const [success, setSuccess] = useState("");
     );
 
     if (data.success) {
-      setSuccess(data.msg || "Login successful");
-      dispatch(SetLogin(true))
-      // OPTIONAL: store email or user info (not token)
-      toast.success(t('loginsuccessfully'))
-      localStorage.setItem("CurrUser", data.email);
+     toast.success("updated successfully!!!")
       navigate("/");
+      navigate("/signin");
   
-      // OPTIONAL redirect
-      // navigate("/dashboard");
+    
     } else {
       setError(data.msg || "Login failed");
     }
-  } catch (err) {
-    if (err.response && err.response.data) {
-      setError(t("invalidcredential"));
-    } else {
-      setError("Server error. Please try again later.");
-    }
+  } catch (error) {
+    console.log("error in fogot password")
+          console.log(error)
+       const { status, data } = error.response;
+       if(status==404){
+       return navigate("/signup")
+       }
+       toast.error(data.message)
   } finally {
     setLoading(false);
   }
@@ -82,17 +83,34 @@ const [success, setSuccess] = useState("");
  
 
   useEffect(() => {
-  
-  
-  if (loading) return;
-  if (!signindata) return;
-
-  }, [loading, signindata]);
+  setFormData({email:email,NewPassword:"",otp:""})
+ 
+  }, []);
+ const HandleResendOTp=async (email)=>{
+   if(!email){
+     toast.error("email is required")
+   }
+    try {
+        let {data}=await axios.post(`http://localhost:4500/user/resend-otp-for-forgotpass`,{email})
+        if(data.success){
+            toast.success(data.msg)
+            return true;
+            
+        }
+        
+        
+    } catch (error) {
+        console.log("error in rsend otp for forgotpass")
+      console.log(error)
+   const { status, data } = error.response;
+   toast.error(data.msg)
+    }
+ }
 
   return (
     <>
     <Helmet>
-        <title>SignIn Page | My Music App</title>
+        <title>ResetPass Page | My Music App</title>
 
         <meta
           name="description"
@@ -107,7 +125,7 @@ const [success, setSuccess] = useState("");
         className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-gray-200"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          {t('login')}
+          {t('resetpass')}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -121,30 +139,24 @@ const [success, setSuccess] = useState("");
             onChange={handleChange}
             type="email"
           />
+          <InputField
+            icon={<PhoneCall size={18} />}
+            placeholder="Otp"
+            name="otp"
+            onChange={handleChange}
+            type="number"
+          />
 
           {/* Password */}
           <InputField
             icon={<Lock size={18} />}
             placeholder="Password"
-            name="password"
+            name="NewPassword"
             onChange={handleChange}
             type="password"
           />
 
-         <div className="flex justify-end">
-    <motion.button
-    name="forgotpass"
-    type="button"
-    onClick={()=>{
-      navigate("/forgotpass")
-    }}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    className="text-sm text-black font-bold hover:underline"
-    >
-      {t("forgotpass")}
-    </motion.button>
-  </div>
+        
   <span className="font-bold text-black">{error}</span>
           {/* Submit */}
           <motion.button
@@ -160,10 +172,11 @@ const [success, setSuccess] = useState("");
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  t("login")
+                  t("submit")
                 )}
               </motion.button>
         </form>
+        <OtpTimer onResend={()=>HandleResendOTp(formData.email)}/>
       </motion.div>
     </div>
 </>

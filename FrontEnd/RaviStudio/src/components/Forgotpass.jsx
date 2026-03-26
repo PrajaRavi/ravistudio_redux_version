@@ -8,18 +8,15 @@ import {Lock, Mail} from "lucide-react"
 import { SetLogin } from "../Redux/Slices/User.slice";
 import {Helmet} from "react-helmet-async"
 import { useTranslation } from "react-i18next";
-export default function Login() {
+export default function Forgotpassforuser() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const dispatch=useDispatch()
   const signindata=useSelector(state=>state.User.signindata)
   
-  const signinerror=useSelector(state=>state.User.error)
   const [formData, setFormData] = useState({
-      email: '',
-      password: '',
-    });
+      email: ''  });
     
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState("");
@@ -36,63 +33,52 @@ const [success, setSuccess] = useState("");
   setError("");
   setSuccess("");
 
-  if (!formData.email || !formData.password) {
+  if (!formData.email) {
     setError("Email and password are required");
+    return;
+  }
+handleForgotPassword();
+
+};
+ const handleForgotPassword = async () => {
+  if (!formData.email) {
+    toast.warning(t("enteremailfirst"));
     return;
   }
 
   try {
-    setLoading(true);
+    setLoading(true)
+    let {data}=await axios.post("http://localhost:4500/user/SendResetPassOTP", {
+      email: formData.email
+    });
+    if(data.success){
 
-    const { data } = await axios.post(
-      "http://localhost:4500/user/login",
-      {
-        email: formData.email,
-        password: formData.password,
-      },
-      {
-        withCredentials: true, // IMPORTANT for cookies
-      }
-    );
+        navigate(`/resetpass/${formData.email}`)
+      toast.success(t("otpSent"));
+    }
+    else{
+      console.log("error in frontend in sending forgot pass otp")
+    }
+  } catch (error) {
+      if (error.response) {
+          const { status, data } = error.response;
+          toast.error(data.msg)
+        }
+        else{
 
-    if (data.success) {
-      setSuccess(data.msg || "Login successful");
-      dispatch(SetLogin(true))
-      // OPTIONAL: store email or user info (not token)
-      toast.success(t('loginsuccessfully'))
-      localStorage.setItem("CurrUser", data.email);
-      navigate("/");
-  
-      // OPTIONAL redirect
-      // navigate("/dashboard");
-    } else {
-      setError(data.msg || "Login failed");
-    }
-  } catch (err) {
-    if (err.response && err.response.data) {
-      setError(t("invalidcredential"));
-    } else {
-      setError("Server error. Please try again later.");
-    }
-  } finally {
-    setLoading(false);
+            toast.error("Failed to send OTP");
+        }
+  }finally{
+    setLoading(false)
   }
 };
-
- 
-
-  useEffect(() => {
   
+
   
-  if (loading) return;
-  if (!signindata) return;
-
-  }, [loading, signindata]);
-
   return (
     <>
     <Helmet>
-        <title>SignIn Page | My Music App</title>
+        <title>Forgotpass Page | My Music App</title>
 
         <meta
           name="description"
@@ -107,11 +93,11 @@ const [success, setSuccess] = useState("");
         className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-white/10 backdrop-blur-md border border-gray-200"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          {t('login')}
+          {t('forgotpass')}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* First & Last Name */}
+         
            
           {/* Email */}
           <InputField
@@ -122,29 +108,8 @@ const [success, setSuccess] = useState("");
             type="email"
           />
 
-          {/* Password */}
-          <InputField
-            icon={<Lock size={18} />}
-            placeholder="Password"
-            name="password"
-            onChange={handleChange}
-            type="password"
-          />
-
-         <div className="flex justify-end">
-    <motion.button
-    name="forgotpass"
-    type="button"
-    onClick={()=>{
-      navigate("/forgotpass")
-    }}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    className="text-sm text-black font-bold hover:underline"
-    >
-      {t("forgotpass")}
-    </motion.button>
-  </div>
+        
+       
   <span className="font-bold text-black">{error}</span>
           {/* Submit */}
           <motion.button
@@ -160,7 +125,7 @@ const [success, setSuccess] = useState("");
                 {loading ? (
                   <span className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  t("login")
+                  t("submit")
                 )}
               </motion.button>
         </form>

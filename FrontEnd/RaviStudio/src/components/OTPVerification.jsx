@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import OtpTimer from "./utils/Timer";
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
@@ -75,15 +76,15 @@ const handleSubmit = async (e) => {
       toast.success(data.msg)
       navigate("/signin")
       
-    } else {
-      setError(data.msg || "Verification failed");
     }
-  } catch (err) {
-    if (err.response && err.response.data) {
-      setError(err.response.data.message);
-    } else {
-      setError("Something went wrong. Please try again.");
-    }
+    } catch (error) {
+      console.log("error in otp verification")
+      console.log(error)
+   const { status, data } = error.response;
+   if(status==404){
+    navigate("/signup")
+   }
+   toast.error(data.msg)
   } finally {
     setLoading(false);
   }
@@ -91,7 +92,27 @@ const handleSubmit = async (e) => {
 useEffect(()=>{
 setFormData({email:email,otp:"",confirmOtp:""})
 },[])
+const HandleResendOtp=async()=>{
+  if(!email){
+    toast.error("email is required")
+  }
+  try {
+    let {data}=await axios.post(`http://localhost:4500/user/resend-otp`,{email})
+    if(data.success){
+      toast.success(data.msg)
+      return true;
 
+    }
+  } catch (error) {
+
+    if(error.response){
+      toast.error(error.response.data.msg)
+    }
+    console.log(error)
+    console.log("error in resend verification otp")
+    
+  }
+}
   return (
     <>
     <Helmet>
@@ -232,6 +253,7 @@ setFormData({email:email,otp:"",confirmOtp:""})
 </motion.button>
 
         </form>
+        <OtpTimer onResend={()=>{HandleResendOtp()}}/>
       </motion.div>
     </div>
     </>

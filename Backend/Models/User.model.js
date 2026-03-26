@@ -26,6 +26,10 @@ SongQuality:{
       type: Number,
       default: 0,
     },
+ verifyOtpExpiresAt: {
+      type: Number,
+      default: 0,
+    },
  resetOtp: {
       type:String,
       default: "",
@@ -41,6 +45,7 @@ contact:{
 
     password: { type: String, required: true },
     verifyOtp: { type: String},
+
     Lastsongplayed:{
       type:mongoose.Schema.Types.ObjectId,
       ref:"Song"
