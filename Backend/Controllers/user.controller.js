@@ -4,9 +4,14 @@ import jwt from "jsonwebtoken";
 import { transporter } from "../utilities/transporter.utility.js";
 import { async_Handler } from "../utilities/async_Handler.utility.js";
 import { err_Handler } from "../utilities/err_Handler.utility.js";
-import {SongModel} from "../Models/song.model.js"
+import { SongModel } from "../Models/song.model.js";
 import { UserModel } from "../Models/User.model.js";
-import { addEmailToQueue, addOTPInForgotPassQueue, addResendOTPForEmailVerification, addResendOTPInForgotPassQueue } from "../Bullmq/producer.js";
+import {
+  addEmailToQueue,
+  addOTPInForgotPassQueue,
+  addResendOTPForEmailVerification,
+  addResendOTPInForgotPassQueue,
+} from "../Bullmq/producer.js";
 export const SignUp = async_Handler(async (req, res, next) => {
   const { firstName, lastName, dob, email, password, contact } = req.body;
 
@@ -58,22 +63,20 @@ export const SignUp = async_Handler(async (req, res, next) => {
     //   subject: "Email Verification OTP",
     //   text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
     // });
- let emaildata=   await addEmailToQueue(email,otp)
- if(emaildata){
-   return res.status(201).json({
-     success: true,
-     msg: "Signup successful. Please verify your email.",
-    });
-  }
-  else{
-    console.log("some error ocuued during sending emails")
-  }
-
-   
-   
+    let emaildata = await addEmailToQueue(email, otp);
+    if (emaildata) {
+      return res.status(201).json({
+        success: true,
+        msg: "Signup successful. Please verify your email.",
+      });
+    } else {
+      console.log("some error ocuued during sending emails");
+    }
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(403).send({ success: false, msg: "User already exist" });
+      return res
+        .status(403)
+        .send({ success: false, msg: "User already exist" });
     } else if (error.message) {
       return res.status(500).send({ success: false, msg: error.message });
     } else {
@@ -87,8 +90,9 @@ export const verifyOtp = async (req, res, next) => {
 
   if (!email || !otp) {
     // return next(new err_Handler("Email and OTP are required", 400));
-    return res.status(400).send({ success: false, msg: "Email and OTP are required" });
-
+    return res
+      .status(400)
+      .send({ success: false, msg: "Email and OTP are required" });
   }
 
   // 1️⃣ Find user
@@ -101,7 +105,9 @@ export const verifyOtp = async (req, res, next) => {
   // 2️⃣ Already verified
   if (user.isAccountVerified) {
     // return next(new err_Handler("Account already verified", 400));
-    return res.status(401).send({ success: false, msg: "Account already verified" });
+    return res
+      .status(401)
+      .send({ success: false, msg: "Account already verified" });
   }
 
   // 3️⃣ OTP expired
@@ -116,7 +122,6 @@ export const verifyOtp = async (req, res, next) => {
   if (hashedOtp != user.verifyOtp) {
     // return next(new err_Handler("Invalid OTP", 401));
     return res.status(401).send({ success: false, msg: "Invalid OTP" });
-    
   }
 
   // 6️⃣ Verify account
@@ -206,7 +211,7 @@ export const login = async (req, res, next) => {
         email: user.email,
       });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.send({ success: false, msg: error });
   }
 };
@@ -245,7 +250,6 @@ export const loginforapp = async (req, res, next) => {
       });
     }
 
-
     // 🔑 Short-lived access token
     const accessToken = jwt.sign(
       { id: user._id },
@@ -268,15 +272,14 @@ export const loginforapp = async (req, res, next) => {
 
     // 🍪 Send tokens in cookies
     res.send({
-        success: true,
-        msg: "Login successful",
-        email: user.email,
-        accessToken,
-        refreshToken,
-
-      });
+      success: true,
+      msg: "Login successful",
+      email: user.email,
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.send({ success: false, msg: error });
   }
 };
@@ -319,9 +322,9 @@ export const refreshAccessToken = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.send({ success: true, msg: "refreshed successfully"});
+    res.send({ success: true, msg: "refreshed successfully" });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return res.status(403).json({
       success: false,
       msg: "Refresh token expired",
@@ -329,15 +332,15 @@ export const refreshAccessToken = async (req, res) => {
   }
 };
 export const refreshAccessTokenForApp = async (req, res) => {
-   let refreshToken;
+  let refreshToken;
 
-    // 1️⃣ Check Authorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      refreshToken = req.headers.authorization.split(" ")[1];
-    }
+  // 1️⃣ Check Authorization header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    refreshToken = req.headers.authorization.split(" ")[1];
+  }
   if (!refreshToken) {
     return res.status(401).json({
       success: false,
@@ -351,10 +354,10 @@ export const refreshAccessTokenForApp = async (req, res) => {
       process.env.JWT_REFRESH_SECRET_KEY,
     );
     const user = await UserModel.findById(decoded.id);
-    console.log(user.refreshToken)
-    console.log(refreshToken)
+    console.log(user.refreshToken);
+    console.log(refreshToken);
     if (!user || user.refreshToken !== refreshToken) {
-      console.log("invalid refresh token")
+      console.log("invalid refresh token");
       return res.status(403).json({
         success: false,
         msg: "Invalid refresh token",
@@ -366,17 +369,21 @@ export const refreshAccessTokenForApp = async (req, res) => {
       process.env.JWT_ACCESS_SECRET_KEY,
       { expiresIn: "15m" },
     );
-const newrefreshToken = jwt.sign(
+    const newrefreshToken = jwt.sign(
       { id: user._id },
       process.env.JWT_REFRESH_SECRET_KEY,
       { expiresIn: "30d" },
     );
 
-   
-    console.log("refresh")
-    res.send({ success: true, msg: "refreshed successfully",newAccessToken,newrefreshToken });
+    console.log("refresh");
+    res.send({
+      success: true,
+      msg: "refreshed successfully",
+      newAccessToken,
+      newrefreshToken,
+    });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return res.status(403).json({
       success: false,
       msg: "Refresh token expired",
@@ -417,7 +424,7 @@ export const getLoggedInUser = async (req, res, next) => {
       data: user,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     next(error);
   }
 };
@@ -453,11 +460,13 @@ export const resendOtpforverification = async (req, res, next) => {
     await user.save();
 
     // ✉️ Send OTP via email
-    
-    let data=await addResendOTPForEmailVerification(email,otp,user.firstName)
-    if(data){
 
-      
+    let data = await addResendOTPForEmailVerification(
+      email,
+      otp,
+      user.firstName,
+    );
+    if (data) {
       res.status(200).json({
         success: true,
         msg: "OTP resent successfully. Please check your email.",
@@ -467,8 +476,8 @@ export const resendOtpforverification = async (req, res, next) => {
     return res.send({ success: false, msg: error });
   }
 };
-export const resendOtpforForgotPass=async(req,res,next)=>{
- try {
+export const resendOtpforForgotPass = async (req, res, next) => {
+  try {
     const { email } = req.body;
 
     if (!email) {
@@ -480,7 +489,6 @@ export const resendOtpforForgotPass=async(req,res,next)=>{
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
-    
     // 🔑 Generate new OTP
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
@@ -493,24 +501,24 @@ export const resendOtpforForgotPass=async(req,res,next)=>{
     await user.save();
 
     // ✉️ Send OTP via email
-    let data=await addResendOTPInForgotPassQueue(email,otp,user.firstName)
-    console.log(data)
-    if(data){
-
-      
+    let data = await addResendOTPInForgotPassQueue(email, otp, user.firstName);
+    console.log(data);
+    if (data) {
       res.status(200).json({
         success: true,
         msg: "OTP resent successfully. Please check your email.",
       });
-    }
-    else{
-      console.log("error in resendotpforgotpass bullmq")
+    } else {
+      console.log("error in resendotpforgotpass bullmq");
     }
   } catch (error) {
-    console.log(error)
-    return res.send({ success: false, msg:"error in  resendOtpforForgotPass "});
+    console.log(error);
+    return res.send({
+      success: false,
+      msg: "error in  resendOtpforForgotPass ",
+    });
   }
-}
+};
 
 export const updateProfileImage = async (req, res) => {
   try {
@@ -594,7 +602,7 @@ export const UpdateUserLang = async (req, res, next) => {
 
 export const addToFavourites = async (req, res, next) => {
   try {
-    const userId = req.user.id;       // from protect middleware
+    const userId = req.user.id; // from protect middleware
     const { songId } = req.body;
 
     if (!songId) {
@@ -609,7 +617,7 @@ export const addToFavourites = async (req, res, next) => {
       {
         $addToSet: { favoriteSongs: songId }, // 👈 NO DUPLICATES
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedUser) {
@@ -625,125 +633,146 @@ export const addToFavourites = async (req, res, next) => {
       favourites: updatedUser.FavSongData,
     });
   } catch (error) {
-    return res.send({success:false,msg:"error in favourite song post"})
+    return res.send({ success: false, msg: "error in favourite song post" });
   }
 };
 
-export const GetFavouriteSongId=async(req,res,next)=>{
-  const userId = req.user.id;       // from protect middleware
-    
-  try {
+export const GetFavouriteSongId = async (req, res, next) => {
+  const userId = req.user.id; // from protect middleware
 
-    let data=await UserModel.findById(userId);
-    if(data){
-      return res.send({success:true,msg:data.favoriteSongs})
+  try {
+    let data = await UserModel.findById(userId);
+    if (data) {
+      return res.send({ success: true, msg: data.favoriteSongs });
     }
   } catch (error) {
-    return res.send({success:false,msg:"error in Getting favourite song"})
-    
+    return res.send({ success: false, msg: "error in Getting favourite song" });
   }
-  
-}
+};
 
-export const UpdateUser=async(req,resp)=>{
+export const UpdateUser = async (req, resp) => {
   try {
-    let {firstName,lastName,contact,email}=req.body;
-    let userId=req.user.id
-    let data=await UserModel.findOneAndUpdate({_id:userId},{$set:{
-      firstName,lastName,contact,email
-    }})
-    if(data) return resp.send({success:true,msg:"successfully updated"})
+    let { firstName, lastName, contact, email } = req.body;
+    let userId = req.user.id;
+    let data = await UserModel.findOneAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          firstName,
+          lastName,
+          contact,
+          email,
+        },
+      },
+    );
+    if (data) return resp.send({ success: true, msg: "successfully updated" });
   } catch (error) {
-    console.log(error)
-    return resp.send({success:false,msg:"error in updating user"})
-    
+    console.log(error);
+    return resp.send({ success: false, msg: "error in updating user" });
   }
-}
+};
 
-export const GetAllUser=async(req,resp)=>{
-  let page=req.query.page||1;
-  let limit=req.query.limit||9;
+export const GetAllUser = async (req, resp) => {
+  let page = req.query.page || 1;
+  let limit = req.query.limit || 9;
   try {
-    let data=await UserModel.find()
-    .skip(page-1)
-    .limit(limit)
-    .lean();
-    if(data) return resp.status(200).json({success:true,msg:"successfully fetched",users:data})
+    let data = await UserModel.find()
+      .skip(page - 1)
+      .limit(limit)
+      .lean();
+    if (data)
+      return resp
+        .status(200)
+        .json({ success: true, msg: "successfully fetched", users: data });
   } catch (error) {
-    console.log(error)
-    return resp.status(500).json({success:false,msg:"error in collecting all user"})
-    
+    console.log(error);
+    return resp
+      .status(500)
+      .json({ success: false, msg: "error in collecting all user" });
   }
-}
-export const PushLastSongPlayedByUser=async(req,resp)=>{
+};
+export const PushLastSongPlayedByUser = async (req, resp) => {
   try {
-      const userId = req.user.id;       // from protect middleware
-      if(!userId){
-        return resp.status(400).send({success:false,msg:"you are not loged in"})
-      }
-      let data=await UserModel.updateOne({_id:userId},{
-        $set:{Lastsongplayed:req.params.id}
-      })
-      if(data){
-        return resp.status(200).send({success:true,msg:"succesfully aur kya "})
-      }
-    
+    const userId = req.user.id; // from protect middleware
+    if (!userId) {
+      return resp
+        .status(400)
+        .send({ success: false, msg: "you are not loged in" });
+    }
+    let data = await UserModel.updateOne(
+      { _id: userId },
+      {
+        $set: { Lastsongplayed: req.params.id },
+      },
+    );
+    if (data) {
+      return resp
+        .status(200)
+        .send({ success: true, msg: "succesfully aur kya " });
+    }
   } catch (error) {
-    console.log(error)
-    console.log("error in pushing the lastsongplayed by user")
-    
+    console.log(error);
+    console.log("error in pushing the lastsongplayed by user");
   }
-}
+};
 
-export const GetLastPlayedSong=async(req,resp)=>{
+export const GetLastPlayedSong = async (req, resp) => {
   try {
-     const userId = req.user.id;       // from protect middleware
+    const userId = req.user.id; // from protect middleware
     //  console.log(req.params.id)
-      if(!userId){
-        return resp.status(400).send({success:false,msg:"you are not loged in"})
-      }
-      let data=await SongModel.find({_id:req.params.id})
-      if(data){
-        console.log(data)
-        return resp.status(200).json({success:true,msg:data})
-      }
-
-     
+    if (!userId) {
+      return resp
+        .status(400)
+        .send({ success: false, msg: "you are not loged in" });
+    }
+    let data = await SongModel.find({ _id: req.params.id });
+    if (data) {
+      console.log(data);
+      return resp.status(200).json({ success: true, msg: data });
+    }
   } catch (error) {
-     console.log(error)
-    console.log("error in fetching the lastsongplayed by user")
+    console.log(error);
+    console.log("error in fetching the lastsongplayed by user");
   }
-}
+};
 
-export const PostSongQuality=async(req,resp)=>{
+export const PostSongQuality = async (req, resp) => {
   try {
-     const userId = req.user.id;       // from protect middleware
-     const SongQuality=req.body.SongQuality
-     let data=await UserModel.updateOne({_id:userId},{$set:{SongQuality}})
-     if(data)
-      return resp.status(200).send({success:true,msg:"successfull!!"})
-    
+    const userId = req.user.id; // from protect middleware
+    const SongQuality = req.body.SongQuality;
+    let data = await UserModel.updateOne(
+      { _id: userId },
+      { $set: { SongQuality } },
+    );
+    if (data)
+      return resp.status(200).send({ success: true, msg: "successfull!!" });
   } catch (error) {
-    console.log(error)
-    console.log("error in posting the song quality of user")
-    return resp.status(500).send({success:false,msg:"error during posting the song quality"})
+    console.log(error);
+    console.log("error in posting the song quality of user");
+    return resp
+      .status(500)
+      .send({ success: false, msg: "error during posting the song quality" });
   }
-}
+};
 
 export async function SendResetPasswordOTP(req, resp) {
   const { email } = req.body;
 
   if (!email) {
-    return resp.status(400).send({ success: false, msg: "Please provide an email address" });
+    return resp
+      .status(400)
+      .send({ success: false, msg: "Please provide an email address" });
   }
 
   try {
     const user = await UserModel.findOne({ email: email.toLowerCase() }); // Use lowercase for consistency
 
-    // Security Note: You might want to return 'success: true' even if user doesn't exist 
+    // Security Note: You might want to return 'success: true' even if user doesn't exist
     // to prevent email enumeration, but 404/403 is standard for many apps.
     if (!user) {
-      return resp.status(404).send({ success: false, msg: "No account found with this email" });
+      return resp
+        .status(404)
+        .send({ success: false, msg: "No account found with this email" });
     }
 
     // Generate a secure 6-digit OTP
@@ -760,30 +789,25 @@ export async function SendResetPasswordOTP(req, resp) {
           resetOtp: otp,
           resetOtpExpiresAt: otpExpiresAt,
         },
-      }
+      },
     );
 
-   
     // Send Mail
-    let data=await addOTPInForgotPassQueue(email,otp)
-    if(data){
-
-      
+    let data = await addOTPInForgotPassQueue(email, otp);
+    if (data) {
       // Return a CLEAN success response
-      return resp.status(200).send({ 
-        success: true, 
-        msg: "OTP sent successfully to your email" 
+      return resp.status(200).send({
+        success: true,
+        msg: "OTP sent successfully to your email",
       });
+    } else {
+      console.log("error in sending forgot pass otp");
     }
-    else{
-      console.log("error in sending forgot pass otp")
-    }
-
   } catch (error) {
     console.error("Forgot Password Error:", error);
-    return resp.status(500).send({ 
-      success: false, 
-      msg: "An internal server error occurred. Please try again later." 
+    return resp.status(500).send({
+      success: false,
+      msg: "An internal server error occurred. Please try again later.",
     });
   }
 }
@@ -793,9 +817,9 @@ export async function ResetUserPassword(req, resp) {
 
   // 1. Validation check (400 Bad Request)
   if (!email || !NewPassword || !otp) {
-    return resp.status(400).send({ 
-      success: false, 
-      message: "All fields (email, new password, and OTP) are required" 
+    return resp.status(400).send({
+      success: false,
+      message: "All fields (email, new password, and OTP) are required",
     });
   }
 
@@ -804,7 +828,9 @@ export async function ResetUserPassword(req, resp) {
 
     // 2. User Existence check (404 Not Found)
     if (!user) {
-      return resp.status(404).send({ success: false, message: "User not found" });
+      return resp
+        .status(404)
+        .send({ success: false, message: "User not found" });
     }
 
     // 3. OTP Presence & Validity check (400 Bad Request)
@@ -815,7 +841,9 @@ export async function ResetUserPassword(req, resp) {
 
     // 4. Expiry check (410 Gone or 400)
     if (user.resetOtpExpiresAt < Date.now()) {
-      return resp.status(400).send({ success: false, message: "OTP has expired" });
+      return resp
+        .status(400)
+        .send({ success: false, message: "OTP has expired" });
     }
 
     // 5. Hashing & Updating (Use Async for better performance)
@@ -827,23 +855,23 @@ export async function ResetUserPassword(req, resp) {
       {
         $set: {
           password: hashedPass,
-          resetOtp: "",           // Clear the OTP so it can't be reused
-          resetOtpExpiresAt: 0,   // Reset the timer
+          resetOtp: "", // Clear the OTP so it can't be reused
+          resetOtpExpiresAt: 0, // Reset the timer
         },
-      }
+      },
     );
 
     // 6. Success Response (200 OK)
     return resp.status(200).send({
       success: true,
-      message: "Password reset successfully. You can now login with your new password.",
+      message:
+        "Password reset successfully. You can now login with your new password.",
     });
-
   } catch (error) {
     console.error("Reset Password Error:", error);
-    return resp.status(500).send({ 
-      success: false, 
-      message: "Internal server error during password reset" 
+    return resp.status(500).send({
+      success: false,
+      message: "Internal server error during password reset",
     });
   }
 }

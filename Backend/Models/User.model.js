@@ -58,7 +58,6 @@ contact:{
     isAdmin: { type: Boolean, default: false },
 
     isAccountVerified: { type: Boolean, default: false },
-
     /* References */
     playlists: [{ type: Schema.Types.ObjectId, ref: "Playlist" }],
     favoriteSongs: [{ type: Schema.Types.ObjectId, ref: "Song" }],

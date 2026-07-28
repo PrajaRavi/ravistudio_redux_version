@@ -1,0 +1,1 @@
+export const RecommConst="recommConst" //This variable will tell me when i have to call the recommendedSong API

@@ -11,7 +11,7 @@ import path from "path"; // NEW
 import { parseFile } from "music-metadata";
 import ffmpeg from "fluent-ffmpeg";
 import ffprobeStatic from "ffprobe-static";
-
+import axios from "axios"
 import { UserModel } from "./Models/User.model.js";
 import { SingerModel } from "./Models/Singer.model.js";
 import multer from "multer";
@@ -29,10 +29,9 @@ import { ReviewRouter } from "./Routes/Review.route.js";
 import morgan from "morgan";
 
 let UploadedAudioPath=""
-
 dotenv.config();
 // Set up port, defaulting to 2000 if not specified in environment
-const port = process.env.PORT || 2000;
+const port = process.env.PORT || 4500;
 
 // Initialize Express application
 const app = express();
@@ -600,12 +599,31 @@ const AACaudioURL={
     });
 };
 
+app.post("/get-song-by-slimilarity-search",async (req,resp)=>{
+  try {
+    let {title,artist,language,genre,album}=req.body;
+    let {data}=await axios.post("http://localhost:8000/get-relevant-vector",{title,artist,language,genre,album,id:"Ravi"})
+    // console.log(data)
+    if(data.success){
+      return resp.status(200).send({success:true,msg:data?.msg})
+    }
+    else{
+      return resp.status(203).send({success:false,msg:[]})
+      
+    }
+  } catch (error) {
+    
+    console.log(error)
+    return resp.status(500).send({success:false,msg:"Internal server error"})
+  }
+})
 // Whole pipe line to transcode the audio
 app.post(
   "/api/upload",
-  upload_for_song_upload.single("video"),
+  upload_for_song_upload.single("Audio"),
   TranscodeAudio,
   async (req, res) => {
+    let coverOutputDir="./Images/SongImages"
     let filePath =
       "./Upload/" +
       String(req.uploadedAudioPath).substring(
@@ -698,6 +716,9 @@ app.post(
           ffprobe: ffprobeData,
         },
       };
+
+      
+
       console.log(AudioURLObj?.Low);
       console.log(AudioURLObj?.Mid);
       
@@ -727,6 +748,32 @@ app.post(
       });
 
       console.log(await data.save());
+      let flag=true;
+      /** ------------------calling the fastAPI api for storing this song embedding in vector store-------------- */
+      try {
+        
+        let {data}=await axios.post("http://localhost:8000/store-vector-in-vectorDB",{title:String(myobj.title),genre: String(myobj.genre),artist: String(myobj.artist),album: String(myobj.album),language: myobj.language,id:String(data._id)})
+        console.log(data)
+        console.log("ravi")
+        if(data.success==false){
+          flag=false
+          return res.send({success:false,msg:data?.msg})
+          
+        }
+        
+      } catch (error) {
+        let {data,status}=error.response;
+        flag=false;
+        if(data?.success==false){
+          return res.send({success:false,msg:data?.msg})
+        }
+        console.log(error)
+        console.log("error ravi")
+        }
+
+      if(flag==false)
+        return res.send({success:false,msg:"something error in vector_store pipeline"})
+      
      
         
 
@@ -750,6 +797,23 @@ app.post(
  * @param {string} [coverOutputDir] - optional directory to save cover image
  */
 
+app.post("/get-recommended-song-detail",async (req,resp)=>{
+  try {
+    let {songs}=req.body;
+    let data=await SongModel.find({_id:{$in:songs}})
+    if(data){
+      return resp.send({success:true,msg:data})
+    }
+    else{
+      return resp.send({success:false,msg:[]})
+    }
+
+  } catch (error) {
+    
+    console.log(error)
+    return resp.send({success:false,msg:"Internal server error"})
+  }
+})
 async function extractAudioMetadata(filePath, AudioURLObj) {
   filePath = "./Upload/" + String(filePath);
   console.log(filePath);
@@ -861,6 +925,7 @@ async function extractAudioMetadata(filePath, AudioURLObj) {
     throw error;
   }
 }
+
 
 const outputPath = path.join(
   "Images/PlaylistImg",

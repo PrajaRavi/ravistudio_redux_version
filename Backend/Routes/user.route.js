@@ -44,8 +44,8 @@ UserRouter.post("/SendResetPassOTP", SendResetPasswordOTP);
 UserRouter.post("/ResetUserPassword", ResetUserPassword);
 UserRouter.get("/get-all-user", protect, GetAllUser);
 UserRouter.post("/post-last-song-played-by-user-for-app/:id",protectforapp,PushLastSongPlayedByUser)
-UserRouter.post("/post-last-song-played-by-user/:id",protect,PushLastSongPlayedByUser)
+UserRouter.post("/post-last-song-played-by-user/:id",protect,PushLastSongPlayedByUser) //here this id is the songid
 UserRouter.get("/get-last-played-song-for-app/:id",protectforapp,GetLastPlayedSong)
-UserRouter.get("/get-last-played-song/:id",protect,GetLastPlayedSong)
+UserRouter.get("/get-last-played-song/:id",protect,GetLastPlayedSong)//here this id is the songid
 UserRouter.post("/post-song-quality-for-app",protectforapp,PostSongQuality)
 UserRouter.post("/post-song-quality",protect,PostSongQuality)

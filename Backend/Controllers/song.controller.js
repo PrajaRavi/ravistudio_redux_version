@@ -2,9 +2,10 @@ import { response } from "express";
 import { SongModel } from "../Models/song.model.js";
 import {UserModel} from "../Models/User.model.js"
 import {ObjectId} from "mongodb";
+import axios from "axios"
 export const GetAllSongs=async (req,res)=>{
    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 30;
 const TotalSongs = await SongModel.countDocuments();
     const skip = (page - 1) * limit;
   try {
@@ -112,3 +113,70 @@ export const removeFromFavourite = async (req, res) => {
     });
   }
 };
+
+export const GetSongBySimilirtySearch=async (req,res)=>{
+  try {
+    let {title,artist,language,genre,album}=req.body;
+    let {data}=await axios.post("http://localhost:8000/get-relevant-vector",{title,artist,language,genre,album,id:"Ravi"})
+    // console.log(data)
+    if(data.success){
+      return res.status(200).send({success:true,msg:data?.msg})
+    }
+    else{
+      return res.status(203).send({success:false,msg:[]})
+      
+    }
+  } catch (error) {
+    
+    console.log(error)
+    return res.status(500).send({success:false,msg:"Internal server error"})
+  }
+}
+
+// export const UpdateLastPlayedSong=async (req,res)=>{
+//   try {
+//       let userId = req.user.id
+//       let {songid}=req.body;
+//       let data=await UserModel.updateOne({_id:userId},{$set:{LastSong:songid}})
+//       if(data){
+//         return res.status(200).send({success:true,msg:"successfull"})
+//       }
+//     } catch (error) {
+//       console.log(error)
+//       return res.status(500).send({success:false,msg:"internal server error"})
+//     }
+
+// }
+// export const GetLastPlayedSong=async (req,res)=>{
+//   try {
+//       let data=await SongModel.findById(req.params.songid)
+//       if(data){
+//         return res.send({success:true,msg:data})
+//       }
+//       else{
+//         return res.send({success:false,msg:[]})
+  
+//       }
+//     } catch (error) {
+      
+//       console.log(error)
+//       return res.send({success:false,msg:"Internal server error"})
+//     }
+// }
+export const GetRecommendSongDetail=async (req,res)=>{
+  try {
+      let {songs}=req.body;
+      let data=await SongModel.find({_id:{$in:songs}})
+      if(data){
+        return res.send({success:true,msg:data})
+      }
+      else{
+        return res.send({success:false,msg:[]})
+      }
+  
+    } catch (error) {
+      
+      console.log(error)
+      return res.send({success:false,msg:"Internal server error"})
+    }
+}

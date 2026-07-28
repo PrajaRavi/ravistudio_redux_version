@@ -17,8 +17,8 @@ const UserSlice = createSlice({
   reducers: {
     SetLanguage: (state, action) => {
       state.language = action.payload;
-      
     },
+      
     SetLogin: (state, action) => {
       state.IsUserLogin = action.payload;
     },
@@ -53,6 +53,6 @@ const UserSlice = createSlice({
     }
  
 });
-export const { SetLanguage, SetLogin, SetCurrUser, Setsignindata,SetIsAdmin } =
+export const { SetLanguage, SetLogin, SetCurrUser, Setsignindata,SetIsAdmin} =
   UserSlice.actions;
 export const UserReducer = UserSlice.reducer;

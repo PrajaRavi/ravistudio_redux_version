@@ -18,6 +18,8 @@ import { useTranslation } from 'react-i18next';
 import { GetUser } from './Redux/Thunk/User.thunk';
 import Forgotpass from './components/Forgotpass';
 import ResetPass from './components/ResetPass';
+import { RecommConst } from './components/utils/constant';
+import { SetSongArray } from './Redux/Slices/Song.slice';
 
 const Navbar = React.memo(MusicNavbar);
 const MusicPlayer = React.memo(BottomMusicPlayer);
@@ -75,9 +77,23 @@ return ()=>(
 
 },[])
 
-  
+const FetchAllSongs=async ()=>{
+      try {
+        let {data}=await axios.get(`http://localhost:4500/songs/get-all-songs`)
+        if(data.success){
+         
+        dispatch(SetSongArray(data.msg))
+        // setsongs(data.msg)
+      }
+    } catch (error) {
+      console.log("failed fetching data frontend")
+          
+    }
+  }
+
 useEffect(()=>{  
-  
+  FetchAllSongs();
+  localStorage.setItem(RecommConst,0)
   i18n.changeLanguage(SelectedLang?.code)
    if(document.body.dir=i18n.dir()=='ltr'){
       document.body.dir=i18n.dir()

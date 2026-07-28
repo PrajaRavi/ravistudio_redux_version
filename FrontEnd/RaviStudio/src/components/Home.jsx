@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import {Helmet} from "react-helmet-async"
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import RecommSong from './RecommSong';
 
 
 // applying lazy loading(component base code splitting)
@@ -54,6 +55,7 @@ const SelectedLang=useSelector(state=>state.User.language)
     <PlaylistSection heading={t("newreleasedsong")} />
     <PlaylistSection heading={t("popularplaylist")} />
     <PlaylistSection heading={t("popularplaylist")} />
+    <RecommSong heading={t("Recommended Song")} />
       </Suspense>
 
 <LazySection>

@@ -66,7 +66,15 @@ const SongData = useSelector((state) => state.Song.SongArray);
 ];
 
 
-
+  async function AddLastPlayedSongInDB(){
+    try {
+      let {data}=await axios.post(`http://localhost:4500/user/post-last-song-played-by-user/${SongData[parseInt(currsongindex)]._id}`)
+      console.log(data)
+    } catch (error) {
+      console.log(error)
+      console.log("error in AddLastPlayedSongInDB")
+    }
+  }
   const FetchPlaylistById=async()=>{
       let {data}=await axios.get(`http://localhost:4500/playlist/get-playlist-by-id/${playlist}`)
       if(data.success){
@@ -156,12 +164,16 @@ GetAllFavouriteSongId()
   },[])
 
   useEffect(()=>{
+AddLastPlayedSongInDB();
+  },[currsongindex])
+  useEffect(()=>{
     FavSongData?.forEach(id=>{
       liked[id]=true
     })
    },[FavSongData])
   
   const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,songid)=>{
+    
     if(IsFavouriteSongPlay){
       dispatch(SetFavouirtePageOpenOrNot(false))
       
