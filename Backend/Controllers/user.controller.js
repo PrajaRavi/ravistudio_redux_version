@@ -756,6 +756,7 @@ export const PostSongQuality = async (req, resp) => {
 };
 
 export async function SendResetPasswordOTP(req, resp) {
+  console.log("mai chala hu")
   const { email } = req.body;
 
   if (!email) {

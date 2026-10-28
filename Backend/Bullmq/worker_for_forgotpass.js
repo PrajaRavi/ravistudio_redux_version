@@ -3,6 +3,8 @@ import { transporter } from '../utilities/transporter.utility.js';
 export const ForgotPassWorker = new Worker(
   'Forgot-pass-queue',
   async (job) => {
+    try{
+      console.log("sending bhai")
     const { email, otp } = job.data;
     
     console.log(`[Worker] Sending OTP to: ${email}`);
@@ -22,6 +24,11 @@ export const ForgotPassWorker = new Worker(
         </div>
       `,
     });
+    }
+    catch(err){
+console.log(err)
+    }
+
   },
   {
     connection: {

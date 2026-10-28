@@ -44,6 +44,7 @@ const IsUserLogin=useSelector(state=>state.User.IsUserLogin)
 let [OpenReviewPopUp,setOpenReviewPopUp]=useState(false)
 const {i18n} =useTranslation()
 const SelectedLang=useSelector(state=>state.User.language)
+    const currsongindex = useSelector((state) => state.Song.currsongidx);
   
 
 const UserUpdatedProfile=useSelector(state=>state.Song.userupdated) //this is just for telling that their is an updation in user profile so fetch user again
@@ -91,6 +92,10 @@ const FetchAllSongs=async ()=>{
     }
   }
 
+  useEffect(()=>{
+console.log("app.tsx")
+console.log("app.tsx")
+  },[currsongindex])
 useEffect(()=>{  
   FetchAllSongs();
   localStorage.setItem(RecommConst,0)

@@ -9,7 +9,6 @@ import { RecommConst } from "./utils/constant";
 const RecommendedSongs = () => {
   const CurrUser=useSelector(state=>state.User.CurrUser)
   const SongData = useSelector((state) => state.Song.SongArray);
-  let [CurrRecommSongId,setCurrRecommSongId]=useState("")
   
   let currsongindex = useSelector((state) => state.Song.currsongidx);
       const isPlaying=useSelector(state=>state.Song.isPlaying)
@@ -49,7 +48,7 @@ async function GetRecommSongDetail(songs){
 }
 
 const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,songid)=>{
-  setCurrRecommSongId(songid)
+  // setCurrRecommSongId(songid)
     if(IsFavouriteSongPlay){
       dispatch(SetFavouirtePageOpenOrNot(false))
       
@@ -90,6 +89,7 @@ const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,so
   },[CurrUser])
 
   useEffect(()=>{
+    
     if(localStorage.getItem(RecommConst)==20){
     localStorage.setItem(RecommConst,0);
     GetRecommendedSong(SongData[currsongindex]?.title,SongData[currsongindex]?.artist,SongData[currsongindex]?.genre,SongData[currsongindex]?.album)
@@ -97,7 +97,7 @@ const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,so
   else{
     localStorage.setItem(RecommConst,parseInt(localStorage.getItem(RecommConst))+1)
   }
-},[currsongindex])
+},[currsongindex]) //here we have problem basically this currsongindex state is not in sync
 
   
 
@@ -148,11 +148,11 @@ const HandleSongPlay=async (songname,artist,cover,idx,totalsong,MasterFileUrl,so
           />
         </motion.div>
 
-        <h3 className={CurrRecommSongId==singer._id?"mt-1 text-sm font-semibold text-blue-300 truncate":"mt-1 text-sm font-semibold text-gray-100 truncate"}>
+        <h3 className={SongData[currsongindex]?._id==singer._id?"mt-1 text-sm font-semibold text-blue-300 truncate":"mt-1 text-sm font-semibold text-gray-100 truncate"}>
           <p>{singer.title}</p>
         </h3>
 
-        <p className={CurrRecommSongId==singer._id?"text-xs text-blue-300 line-clamp-2":"text-xs text-gray-400 line-clamp-2"}>
+        <p className={SongData[currsongindex]?._id==singer._id?"text-xs text-blue-300 line-clamp-2":"text-xs text-gray-400 line-clamp-2"}>
           {singer.artist}
         </p>
       </button>
